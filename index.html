@@ -85,9 +85,9 @@
         
         #reader-content img, #reader-content pre { max-width: 100%; overflow-x: auto; display: block; }
         
-        /* Estilos específicos para tablas ajustadas */
+        /* Estilos específicos para tablas ajustadas al nuevo requerimiento de 650px */
         .table-responsive-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 1.5rem 0; border: 1px solid var(--border); border-radius: 8px; }
-        #reader-content table { min-width: 400px; width: 100%; border-collapse: collapse; }
+        #reader-content table { min-width: 650px; width: 100%; border-collapse: collapse; }
         #reader-content th, #reader-content td { border: 1px solid var(--border); padding: 10px 14px; text-align: left; }
         #reader-content th { background: var(--bg-base); font-weight: 600; }
 
@@ -95,8 +95,8 @@
         #reader-content h2 { margin-top: 1.5rem; margin-bottom: 0.5rem; font-size: 1.2rem; line-height: 1.3;}
         #reader-content p, #reader-content ul { margin-bottom: 1rem; }
         
-        /* BURBUJA DE SUBRAYADO */
-        #hl-bubble { position: absolute; display: none; background: #1e293b; color: #fff; padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; z-index: 100; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
+        /* BURBUJA DE SUBRAYADO MEJORADA PARA MÓVIL */
+        #hl-bubble { position: absolute; display: none; background: #1e293b; color: #fff; padding: 8px 14px; border-radius: 8px; font-size: 0.85rem; cursor: pointer; z-index: 9999; box-shadow: 0 4px 12px rgba(0,0,0,0.3); transition: opacity 0.2s; white-space: nowrap; }
 
         /* LISTA DESTACADOS */
         .hl-card { background: var(--bg-surface); border-left: 3px solid var(--primary); padding: 1rem; margin-bottom: 1rem; border-radius: 0 8px 8px 0; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
@@ -113,7 +113,10 @@
 </head>
 <body>
 
-    <div id="hl-bubble" onclick="addHighlight()">Destacar y Comentar</div>
+    <div id="hl-bubble" onclick="addHighlight()">
+        <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;display:inline-block;vertical-align:middle;margin-right:4px;"><path stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+        Destacar y Comentar
+    </div>
 
     <header>
         <div class="app-title-bar">
@@ -219,7 +222,7 @@
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <h3>CeDos - Actualizaciones</h3>
-                    <span style="background: var(--primary-light); color: var(--primary); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">v1.4.0</span>
+                    <span style="background: var(--primary-light); color: var(--primary); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">v1.4.1</span>
                 </div>
                 <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; margin-top: 0.5rem;">Fuerza la recarga de la app para descargar la última versión del código base.</p>
                 <button class="btn" onclick="window.location.reload(true)" style="width: 100%; justify-content: center;">
@@ -309,7 +312,7 @@
         function initTimeBar() {
             const updateTime = () => {
                 const now = new Date();
-                const totalDays = 200; // Total de días de estudio fijo solicitado
+                const totalDays = 200; // Total de días de estudio fijo
                 const daysLeft = Math.ceil((EXAM_DATE - now) / (1000 * 60 * 60 * 24));
                 
                 document.getElementById('time-text').innerText = `${Math.max(0, daysLeft)} días hasta el 28N`;
@@ -568,18 +571,44 @@
             }
         });
 
-        // --- DESTACADOS CON COMENTARIOS ---
-        document.addEventListener('mouseup', (e) => {
+        // --- DESTACADOS CON COMENTARIOS (MEJORADO PARA MÓVIL Y ESCRITORIO) ---
+        function checkSelection(e) {
             if(!document.getElementById('reader').classList.contains('active')) return;
-            const sel = window.getSelection().toString().trim();
-            const bubble = document.getElementById('hl-bubble');
-            if(sel.length > 5) {
-                selectedTextTemp = sel;
-                bubble.style.display = 'block';
-                bubble.style.left = `${e.pageX - 70}px`;
-                bubble.style.top = `${e.pageY - 40}px`;
-            } else {
-                bubble.style.display = 'none';
+            
+            // Retardo para que la selección táctil nativa del móvil asiente
+            setTimeout(() => {
+                const selection = window.getSelection();
+                const selText = selection.toString().trim();
+                const bubble = document.getElementById('hl-bubble');
+                
+                if(selText.length > 5) {
+                    selectedTextTemp = selText;
+                    
+                    // Obtener las coordenadas reales del texto pintado en la pantalla
+                    const range = selection.getRangeAt(0);
+                    const rect = range.getBoundingClientRect();
+                    
+                    bubble.style.display = 'block';
+                    
+                    // Centrar matemáticamente
+                    const bubbleWidth = bubble.offsetWidth || 150;
+                    bubble.style.left = `${rect.left + (rect.width / 2) - (bubbleWidth / 2)}px`;
+                    // Situar un poco por encima
+                    bubble.style.top = `${rect.top + window.scrollY - 45}px`;
+                } else {
+                    bubble.style.display = 'none';
+                }
+            }, 100);
+        }
+
+        document.addEventListener('mouseup', checkSelection);
+        document.addEventListener('touchend', checkSelection);
+        
+        // Ocultar al cambiar la selección (ej. mientras se arrastra)
+        document.addEventListener('selectionchange', () => {
+            const selection = window.getSelection();
+            if(selection.toString().trim().length === 0) {
+                document.getElementById('hl-bubble').style.display = 'none';
             }
         });
 
