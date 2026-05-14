@@ -28,7 +28,7 @@
             display: flex; align-items: center; justify-content: center; gap: 8px;
             padding: 12px 0 8px 0; font-weight: 600; font-size: 1.15rem; color: var(--primary);
         }
-        .app-title-bar svg { width: 24px; height: 24px; stroke-width: 1.5; stroke: currentColor; fill: none; }
+        .app-title-bar svg { width: 24px; height: 24px; stroke-width: 1.5; stroke: currentColor; fill: none; stroke-linecap: round; stroke-linejoin: round; }
         
         .time-header { padding: 4px 1.5rem 10px 1.5rem; text-align: right; }
         .time-text { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
@@ -45,7 +45,7 @@
             cursor: pointer; flex: 1; min-width: 60px; transition: color 0.2s;
         }
         .nav-tab.active { color: var(--primary); }
-        .nav-tab svg { width: 22px; height: 22px; stroke-width: 1.2; stroke: currentColor; fill: none; }
+        .nav-tab svg { width: 22px; height: 22px; stroke-width: 1.2; stroke: currentColor; fill: none; stroke-linecap: round; stroke-linejoin: round; }
         .nav-tab span { font-size: 0.65rem; font-weight: 500; }
 
         /* MAIN CONTENT */
@@ -59,16 +59,16 @@
         .folder-header { padding: 1rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 500; }
         .folder-content { border-top: 1px solid var(--border); padding: 0.5rem; display: none; }
         .folder.open .folder-content { display: block; }
-        .file-item { padding: 0.75rem; display: flex; flex-direction: column; gap: 0.5rem; cursor: pointer; border-radius: 6px; }
+        .file-item { padding: 0.75rem; display: flex; flex-direction: column; gap: 0.5rem; border-radius: 6px; }
         .file-item:hover { background: var(--bg-base); }
-        .file-title { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
+        .file-title { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; cursor: pointer; }
         
         /* BARRAS DE PROGRESO DE TEMAS */
         .prog-container { width: 100%; height: 4px; background: var(--border); border-radius: 4px; overflow: hidden; }
         .prog-bar { height: 100%; background: var(--success); width: 0%; transition: width 0.3s; }
         .folder-prog { height: 2px; background: var(--primary); width: 0%; }
 
-        /* LECTOR DE TEMAS (CSS ANTI-DESBORDAMIENTO INCLUIDO) */
+        /* LECTOR DE TEMAS */
         .reader-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; background: var(--bg-surface); padding: 1rem; border-radius: 8px; border: 1px solid var(--border); position: sticky; top: 110px; z-index: 40; }
         
         #reader-content { 
@@ -100,6 +100,7 @@
         .btn-primary { background: var(--primary); color: white; border: none; }
         .card { background: var(--bg-surface); padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid var(--border); }
         img { max-width: 100%; height: auto; border-radius: 8px; }
+        svg { stroke-linecap: round; stroke-linejoin: round; }
     </style>
 </head>
 <body>
@@ -216,7 +217,7 @@
                 <h3>Sincronizar Temario</h3>
                 <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Actualiza la estructura de carpetas automáticamente desde el repositorio.</p>
                 <button class="btn btn-primary" onclick="syncRepo()" id="btn-sync">
-                    <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;"><path stroke-width="1.5" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"></path></svg>
+                    <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;"><path stroke-width="1.5" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"></path></svg>
                     Escanear y Generar
                 </button>
             </div>
@@ -224,28 +225,44 @@
             <div class="card">
                 <h3>Datos Locales</h3>
                 <div style="display: flex; gap: 10px; margin-top: 0.5rem;">
-                    <button class="btn" onclick="exportBackup()">Backup (.json)</button>
-                    <label class="btn">Restore <input type="file" hidden onchange="importBackup(event)"></label>
+                    <button class="btn" onclick="exportBackup()">
+                        <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;"><path stroke-width="1.5" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"></path></svg>
+                        Backup (.json)
+                    </button>
+                    <label class="btn">
+                        <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;"><path stroke-width="1.5" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"></path></svg>
+                        Restore <input type="file" hidden onchange="importBackup(event)">
+                    </label>
                 </div>
             </div>
 
             <div class="card">
                 <h3>Actualizaciones (OTA)</h3>
-                <button class="btn" onclick="window.location.reload(true)" style="margin-top: 0.5rem;">Recargar App</button>
+                <button class="btn" onclick="window.location.reload(true)" style="margin-top: 0.5rem;">
+                    <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;"><path stroke-width="1.5" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"></path></svg>
+                    Recargar App
+                </button>
             </div>
         </section>
 
         <section id="reader" class="section">
-            <button class="btn" onclick="navTo(lastTab)" style="margin-bottom: 1rem;">← Volver</button>
+            <button class="btn" onclick="navTo(lastTab)" style="margin-bottom: 1rem;">
+                <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;"><path stroke-width="1.5" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"></path></svg>
+                Volver
+            </button>
+            
             <div class="reader-controls">
                 <div style="flex:1;">
-                    <h3 id="reader-title" style="font-size: 1.1rem;">Tema</h3>
-                    <div class="prog-container" style="height: 4px; margin-top: 4px;"><div class="prog-bar" id="reader-scroll-bar"></div></div>
+                    <h3 id="reader-title" style="font-size: 1.1rem; margin-bottom: 4px;">Tema</h3>
+                    <div class="prog-container" style="height: 4px;"><div class="prog-bar" id="reader-scroll-bar"></div></div>
                 </div>
-                <label style="display: flex; align-items: center; gap: 8px; margin-left: 1rem; cursor: pointer; font-size: 0.9rem;">
-                    <input type="checkbox" id="reader-check" onchange="toggleTopicCheck()" style="width: 18px; height: 18px; accent-color: var(--success);"> Completado
-                </label>
+                
+                <button id="bookmark-btn" class="btn" onclick="jumpToBookmark()" style="display:none; margin-left:1rem; padding: 0.5rem 0.75rem; font-size: 0.8rem; background: var(--primary-light); color: var(--primary); border: 1px solid var(--primary);">
+                    <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;"><path stroke-width="1.5" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-width="1.5" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"></path></svg>
+                    Volver a posición
+                </button>
             </div>
+
             <div id="reader-content" onscroll="calcScroll()"></div>
         </section>
     </main>
@@ -323,7 +340,9 @@
         // --- GITHUB API SCANNERS ---
         async function syncRepo() {
             const btn = document.getElementById('btn-sync');
-            btn.innerHTML = 'Escaneando...'; btn.disabled = true;
+            const originalContent = btn.innerHTML;
+            btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;"><path stroke-width="1.5" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"></path></svg> Escaneando...'; 
+            btn.disabled = true;
 
             try {
                 const bInfo = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}`).then(r=>r.json());
@@ -363,7 +382,18 @@
             } catch(e) { 
                 alert('Error al escanear: ' + e.message); 
             }
-            btn.innerHTML = 'Escanear y Generar'; btn.disabled = false;
+            btn.innerHTML = originalContent; 
+            btn.disabled = false;
+        }
+
+        // --- RESET PROGRESO ---
+        function resetProgress(path) {
+            if(confirm("¿Deseas resetear el progreso de este tema a 0%?")) {
+                localStorage.removeItem(`c_${path}`);
+                localStorage.removeItem(`p_${path}`);
+                renderTrees();
+                updateStats();
+            }
         }
 
         // --- RENDERIZADO DE CARPETAS ---
@@ -390,12 +420,19 @@
                         let isDone = localStorage.getItem(`c_${f.path}`) === 'true';
                         let prog = localStorage.getItem(`p_${f.path}`) || 0;
                         html += `
-                            <div class="file-item" onclick="loadTopic('${f.path}', '${f.name}')">
-                                <div class="file-title">
+                            <div class="file-item">
+                                <div class="file-title" onclick="loadTopic('${f.path}', '${f.name}')">
                                     <input type="checkbox" ${isDone ? 'checked' : ''} onclick="event.stopPropagation(); toggleListCheck('${f.path}', this)"> 
                                     ${f.name.replace('.html', '')}
                                 </div>
-                                <div class="prog-container" style="height:2px;"><div class="prog-bar" style="width:${isDone ? 100 : prog}%; background: ${isDone ? 'var(--success)' : 'var(--primary)'}"></div></div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <div class="prog-container" style="height:4px; flex: 1;">
+                                        <div class="prog-bar" style="width:${isDone ? 100 : prog}%; background: ${isDone ? 'var(--success)' : 'var(--primary)'}"></div>
+                                    </div>
+                                    <button onclick="event.stopPropagation(); resetProgress('${f.path}')" style="background:none; border:none; cursor:pointer; color:var(--text-muted); padding:2px;" title="Resetear progreso">
+                                        <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;"><path stroke-width="1.5" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"></path></svg>
+                                    </button>
+                                </div>
                             </div>
                         `;
                     });
@@ -420,6 +457,7 @@
 
         function toggleListCheck(path, cb) {
             localStorage.setItem(`c_${path}`, cb.checked);
+            if (cb.checked) localStorage.setItem(`p_${path}`, 100);
             renderTrees(); updateStats();
         }
 
@@ -428,8 +466,8 @@
             navTo('reader');
             currentTopic = { path, name: name.replace('.html', '') };
             document.getElementById('reader-title').innerText = currentTopic.name;
-            document.getElementById('reader-check').checked = localStorage.getItem(`c_${path}`) === 'true';
             document.getElementById('reader-scroll-bar').style.width = (localStorage.getItem(`p_${path}`) || 0) + '%';
+            document.getElementById('bookmark-btn').style.display = 'none';
             
             const cont = document.getElementById('reader-content');
             cont.innerHTML = '<p>Cargando archivo...</p>';
@@ -438,18 +476,51 @@
                 const res = await fetch(path + '?t=' + Date.now());
                 if(!res.ok) throw new Error();
                 cont.innerHTML = await res.text();
+                
+                // MARCADOR DE POSICIÓN
+                setTimeout(() => {
+                    const pct = parseInt(localStorage.getItem(`p_${path}`) || 0);
+                    const isDone = localStorage.getItem(`c_${path}`) === 'true';
+                    
+                    if(pct > 0 && pct < 100 && !isDone) {
+                        cont.style.position = 'relative';
+                        const contentHeight = cont.scrollHeight;
+                        const topPos = (pct / 100) * contentHeight;
+                        
+                        const marker = document.createElement('div');
+                        marker.id = 'bookmark-marker';
+                        marker.innerHTML = `
+                            <div style="display:inline-flex; align-items:center; gap:4px; background:var(--primary); color:white; padding:2px 8px; border-radius:12px; font-size:0.75rem; box-shadow:0 2px 4px rgba(0,0,0,0.1);">
+                                <svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;"><path stroke-width="2" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-width="2" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"></path></svg>
+                                Última lectura
+                            </div>
+                        `;
+                        marker.style.position = 'absolute';
+                        marker.style.top = topPos + 'px';
+                        marker.style.left = '0';
+                        marker.style.width = '100%';
+                        marker.style.borderTop = '2px dashed var(--primary)';
+                        marker.style.zIndex = '10';
+                        
+                        cont.appendChild(marker);
+                        document.getElementById('bookmark-btn').style.display = 'inline-flex';
+                    }
+                }, 400); 
+                
             } catch {
-                cont.innerHTML = `<p style="color:var(--danger)">No se pudo cargar el archivo: <b>${path}</b></p>`;
+                cont.innerHTML = `
+                    <div style="color:var(--danger); border:1px solid var(--danger); padding:1rem; border-radius:8px;">
+                        <svg viewBox="0 0 24 24" style="width:24px;height:24px;stroke:currentColor;fill:none;margin-bottom:0.5rem;"><path stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        <p>No se pudo cargar el archivo: <b>${path}</b></p>
+                    </div>`;
             }
         }
 
-        function toggleTopicCheck() {
-            if(!currentTopic) return;
-            const isC = document.getElementById('reader-check').checked;
-            localStorage.setItem(`c_${currentTopic.path}`, isC);
-            if(isC) localStorage.setItem(`p_${currentTopic.path}`, 100);
-            document.getElementById('reader-scroll-bar').style.width = isC ? '100%' : (localStorage.getItem(`p_${currentTopic.path}`)||0) + '%';
-            renderTrees(); updateStats();
+        function jumpToBookmark() {
+            const marker = document.getElementById('bookmark-marker');
+            if (marker) {
+                marker.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
         }
 
         window.addEventListener('scroll', () => {
