@@ -71,38 +71,36 @@
         /* LECTOR DE TEMAS Y TABLAS */
         .reader-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; background: var(--bg-surface); padding: 1rem; border-radius: 8px; border: 1px solid var(--border); position: sticky; top: 110px; z-index: 40; }
         
-        #reader-content { 
-            background: var(--bg-surface); 
-            padding: 1.5rem; 
-            border-radius: 8px; 
-            font-size: 1.05rem; 
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            word-break: break-word;
-            max-width: 100%;
-            overflow-x: hidden; 
-        }
-        
+        #reader-content { background: var(--bg-surface); padding: 1.5rem; border-radius: 8px; font-size: 1.05rem; word-wrap: break-word; overflow-wrap: break-word; word-break: break-word; max-width: 100%; overflow-x: hidden; }
         #reader-content img, #reader-content pre { max-width: 100%; overflow-x: auto; display: block; }
         
-        /* Estilos específicos para tablas ajustadas al nuevo requerimiento de 650px */
         .table-responsive-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 1.5rem 0; border: 1px solid var(--border); border-radius: 8px; }
         #reader-content table { min-width: 650px; width: 100%; border-collapse: collapse; }
         #reader-content th, #reader-content td { border: 1px solid var(--border); padding: 10px 14px; text-align: left; }
         #reader-content th { background: var(--bg-base); font-weight: 600; }
-
         #reader-content h1 { color: var(--primary); font-size: 1.4rem; margin-bottom: 1rem; line-height: 1.3;}
         #reader-content h2 { margin-top: 1.5rem; margin-bottom: 0.5rem; font-size: 1.2rem; line-height: 1.3;}
         #reader-content p, #reader-content ul { margin-bottom: 1rem; }
+
+        /* ESTILOS DE SUBRAYADO Y TACHADO DENTRO DEL TEXTO */
+        .mark-hl { background-color: var(--highlight); color: #000; border-radius: 3px; padding: 0 2px; }
+        .mark-strike { text-decoration: line-through; text-decoration-color: var(--danger); text-decoration-thickness: 2px; color: var(--text-muted); background-color: rgba(239, 68, 68, 0.1); padding: 0 2px; border-radius: 3px; }
         
-        /* BURBUJA DE SUBRAYADO MEJORADA PARA MÓVIL */
-        #hl-bubble { position: absolute; display: none; background: #1e293b; color: #fff; padding: 8px 14px; border-radius: 8px; font-size: 0.85rem; cursor: pointer; z-index: 9999; box-shadow: 0 4px 12px rgba(0,0,0,0.3); transition: opacity 0.2s; white-space: nowrap; }
+        /* BURBUJA DE ACCIONES (Desplazada abajo) */
+        #hl-bubble { position: absolute; display: none; background: #1e293b; padding: 6px; border-radius: 8px; z-index: 9999; box-shadow: 0 4px 12px rgba(0,0,0,0.3); transition: opacity 0.2s; white-space: nowrap; }
+        .hl-toolbar { display: flex; gap: 4px; }
+        .hl-action-btn { display: flex; align-items: center; gap: 6px; background: transparent; border: none; color: #f8fafc; cursor: pointer; font-size: 0.8rem; padding: 6px 10px; border-radius: 6px; transition: background 0.2s; }
+        .hl-action-btn:hover { background: #334155; }
 
         /* LISTA DESTACADOS */
-        .hl-card { background: var(--bg-surface); border-left: 3px solid var(--primary); padding: 1rem; margin-bottom: 1rem; border-radius: 0 8px 8px 0; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        .hl-comment { background: var(--primary-light); padding: 0.5rem; border-radius: 6px; margin-top: 0.5rem; font-size: 0.85rem; color: var(--text-main); }
-        .hl-meta { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.5rem; }
-
+        .hl-card { background: var(--bg-surface); border-left: 3px solid var(--border); padding: 1rem; margin-bottom: 1rem; border-radius: 0 8px 8px 0; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .hl-card.type-hl { border-left-color: var(--highlight); }
+        .hl-card.type-comment { border-left-color: var(--primary); }
+        .hl-card.type-strike { border-left-color: var(--danger); }
+        .hl-comment { background: var(--bg-base); padding: 0.75rem; border-radius: 6px; margin-top: 0.75rem; font-size: 0.9rem; color: var(--text-main); border: 1px solid var(--border); }
+        .hl-meta { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.75rem; display: flex; justify-content: space-between; align-items: center; }
+        .hl-badge { padding: 2px 6px; border-radius: 4px; font-weight: 600; font-size: 0.65rem; text-transform: uppercase; }
+        
         /* COMPONENTES GENERALES */
         .btn { display: inline-flex; align-items: center; gap: 8px; padding: 0.75rem 1rem; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; color: var(--text-main); cursor: pointer; font-size: 0.9rem; }
         .btn-primary { background: var(--primary); color: white; border: none; }
@@ -113,9 +111,21 @@
 </head>
 <body>
 
-    <div id="hl-bubble" onclick="addHighlight()">
-        <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;display:inline-block;vertical-align:middle;margin-right:4px;"><path stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-        Destacar y Comentar
+    <div id="hl-bubble">
+        <div class="hl-toolbar">
+            <button class="hl-action-btn" onclick="saveAnnotation('hl')">
+                <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;"><path stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                Destacar
+            </button>
+            <button class="hl-action-btn" onclick="saveAnnotation('comment')">
+                <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;"><path stroke-width="2" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z"></path></svg>
+                Comentar
+            </button>
+            <button class="hl-action-btn" onclick="saveAnnotation('strike')">
+                <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;"><path stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                Corregir
+            </button>
+        </div>
     </div>
 
     <header>
@@ -172,8 +182,8 @@
 
         <section id="destacado" class="section">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                <h2>Textos Destacados</h2>
-                <button class="btn" onclick="clearHighlights()" style="color: var(--danger); border-color: var(--danger);">Limpiar</button>
+                <h2>Anotaciones</h2>
+                <button class="btn" onclick="clearHighlights()" style="color: var(--danger); border-color: var(--danger); padding: 0.4rem 0.8rem; font-size: 0.8rem;">Borrar todo</button>
             </div>
             <div id="hl-list"></div>
         </section>
@@ -222,7 +232,7 @@
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <h3>CeDos - Actualizaciones</h3>
-                    <span style="background: var(--primary-light); color: var(--primary); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">v1.4.1</span>
+                    <span style="background: var(--primary-light); color: var(--primary); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">v1.5.0</span>
                 </div>
                 <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; margin-top: 0.5rem;">Fuerza la recarga de la app para descargar la última versión del código base.</p>
                 <button class="btn" onclick="window.location.reload(true)" style="width: 100%; justify-content: center;">
@@ -312,7 +322,7 @@
         function initTimeBar() {
             const updateTime = () => {
                 const now = new Date();
-                const totalDays = 200; // Total de días de estudio fijo
+                const totalDays = 200; 
                 const daysLeft = Math.ceil((EXAM_DATE - now) / (1000 * 60 * 60 * 24));
                 
                 document.getElementById('time-text').innerText = `${Math.max(0, daysLeft)} días hasta el 28N`;
@@ -496,7 +506,7 @@
                 if(!res.ok) throw new Error();
                 cont.innerHTML = await res.text();
                 
-                // Forzar contenedor responsivo en tablas generadas sin él
+                // Forzar scroll horizontal en tablas
                 cont.querySelectorAll('table').forEach(tbl => {
                     if(!tbl.parentElement.classList.contains('table-responsive-wrapper')) {
                         const wrapper = document.createElement('div');
@@ -505,6 +515,9 @@
                         wrapper.appendChild(tbl);
                     }
                 });
+
+                // Restaurar Anotaciones Visuales en el DOM
+                restoreVisualHighlights();
                 
                 // MARCADOR DE POSICIÓN
                 setTimeout(() => {
@@ -547,9 +560,7 @@
 
         function jumpToBookmark() {
             const marker = document.getElementById('bookmark-marker');
-            if (marker) {
-                marker.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
+            if (marker) marker.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
 
         window.addEventListener('scroll', () => {
@@ -571,11 +582,12 @@
             }
         });
 
-        // --- DESTACADOS CON COMENTARIOS (MEJORADO PARA MÓVIL Y ESCRITORIO) ---
-        function checkSelection(e) {
+        // --- SISTEMA DE ANOTACIONES, DESTACADOS Y CORRECCIONES ---
+        
+        function handleSelection(e) {
             if(!document.getElementById('reader').classList.contains('active')) return;
             
-            // Retardo para que la selección táctil nativa del móvil asiente
+            // Retardo para dejar que el sistema operativo complete la selección táctil
             setTimeout(() => {
                 const selection = window.getSelection();
                 const selText = selection.toString().trim();
@@ -583,69 +595,130 @@
                 
                 if(selText.length > 5) {
                     selectedTextTemp = selText;
-                    
-                    // Obtener las coordenadas reales del texto pintado en la pantalla
                     const range = selection.getRangeAt(0);
                     const rect = range.getBoundingClientRect();
                     
                     bubble.style.display = 'block';
+                    // Calcular posición inferior a la selección para evitar el menú nativo Copiar/Pegar
+                    const bubbleWidth = bubble.offsetWidth || 280;
+                    let leftPos = rect.left + (rect.width / 2) - (bubbleWidth / 2);
+                    if (leftPos < 10) leftPos = 10; // Evitar salir de pantalla
                     
-                    // Centrar matemáticamente
-                    const bubbleWidth = bubble.offsetWidth || 150;
-                    bubble.style.left = `${rect.left + (rect.width / 2) - (bubbleWidth / 2)}px`;
-                    // Situar un poco por encima
-                    bubble.style.top = `${rect.top + window.scrollY - 45}px`;
+                    bubble.style.left = `${leftPos}px`;
+                    bubble.style.top = `${rect.bottom + window.scrollY + 10}px`;
                 } else {
                     bubble.style.display = 'none';
                 }
             }, 100);
         }
 
-        document.addEventListener('mouseup', checkSelection);
-        document.addEventListener('touchend', checkSelection);
+        document.addEventListener('mouseup', handleSelection);
+        document.addEventListener('touchend', handleSelection);
         
-        // Ocultar al cambiar la selección (ej. mientras se arrastra)
         document.addEventListener('selectionchange', () => {
-            const selection = window.getSelection();
-            if(selection.toString().trim().length === 0) {
+            if(window.getSelection().toString().trim().length === 0) {
                 document.getElementById('hl-bubble').style.display = 'none';
             }
         });
 
-        function addHighlight() {
+        function saveAnnotation(type) {
             document.getElementById('hl-bubble').style.display = 'none';
-            const comment = prompt("Añadir comentario (opcional):");
-            if(comment === null) return; 
+            
+            // Si no es un comentario simple, pedir nota de texto
+            let comment = null;
+            if (type === 'comment') {
+                comment = prompt("Escribe tu comentario sobre este fragmento:");
+                if(comment === null) return;
+            } else {
+                comment = prompt("Añadir nota adicional (opcional):");
+            }
 
             let hls = JSON.parse(localStorage.getItem('cedos_hls')) || [];
             hls.push({
                 text: selectedTextTemp,
                 comment: comment,
+                type: type, // 'hl', 'comment', 'strike'
                 origin: currentTopic.name,
                 date: new Date().toLocaleDateString()
             });
             localStorage.setItem('cedos_hls', JSON.stringify(hls));
+            
+            // Aplicar visualmente en el momento si corresponde
+            if (type !== 'comment') {
+                restoreVisualHighlights();
+            }
+            
             window.getSelection().removeAllRanges();
-            alert("Guardado en Destacados.");
+            alert("Anotación guardada en Destacados.");
+        }
+
+        // Restaura las marcas visuales en el texto HTML al cargar el tema
+        function restoreVisualHighlights() {
+            if (!currentTopic) return;
+            const hls = JSON.parse(localStorage.getItem('cedos_hls')) || [];
+            const topicHls = hls.filter(h => h.origin === currentTopic.name && h.type !== 'comment');
+            
+            if (topicHls.length === 0) return;
+
+            const cont = document.getElementById('reader-content');
+            const walker = document.createTreeWalker(cont, NodeFilter.SHOW_TEXT, null, false);
+            const nodesToProcess = [];
+            
+            let node;
+            while(node = walker.nextNode()) nodesToProcess.push(node);
+
+            topicHls.forEach(hl => {
+                const searchStr = hl.text;
+                const spanClass = hl.type === 'hl' ? 'mark-hl' : 'mark-strike';
+                
+                nodesToProcess.forEach(n => {
+                    // Evitar procesar nodos que ya están dentro de una marca nuestra
+                    if (n.nodeValue && n.nodeValue.includes(searchStr) && 
+                        n.parentElement.className !== 'mark-hl' && 
+                        n.parentElement.className !== 'mark-strike') {
+                        
+                        // Escapar texto para regex
+                        const escapedStr = searchStr.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+                        const regex = new RegExp(`(${escapedStr})`, 'g');
+                        
+                        const wrapper = document.createElement('span');
+                        wrapper.innerHTML = n.nodeValue.replace(regex, `<span class="${spanClass}">$1</span>`);
+                        n.parentNode.replaceChild(wrapper, n);
+                    }
+                });
+            });
         }
 
         function renderHighlights() {
             const list = document.getElementById('hl-list');
             const hls = JSON.parse(localStorage.getItem('cedos_hls')) || [];
-            if(!hls.length) { list.innerHTML = '<p class="text-muted">No hay destacados.</p>'; return; }
+            if(!hls.length) { list.innerHTML = '<p class="text-muted">No hay anotaciones.</p>'; return; }
             
-            list.innerHTML = hls.reverse().map(h => `
-                <div class="hl-card">
-                    <p><i>"${h.text}"</i></p>
-                    ${h.comment ? `<div class="hl-comment"><b>Nota:</b> ${h.comment}</div>` : ''}
-                    <div class="hl-meta">Origen: ${h.origin} • ${h.date}</div>
-                </div>
-            `).join('');
+            list.innerHTML = hls.reverse().map(h => {
+                let badge = '';
+                let typeClass = 'type-comment';
+                if(h.type === 'hl') { badge = '<span class="hl-badge" style="background:var(--highlight); color:#000;">Destacado</span>'; typeClass = 'type-hl'; }
+                if(h.type === 'strike') { badge = '<span class="hl-badge" style="background:rgba(239,68,68,0.2); color:var(--danger);">Corrección</span>'; typeClass = 'type-strike'; }
+                if(h.type === 'comment') { badge = '<span class="hl-badge" style="background:var(--primary-light); color:var(--primary);">Comentario</span>'; typeClass = 'type-comment'; }
+
+                return `
+                    <div class="hl-card ${typeClass}">
+                        <div style="margin-bottom: 8px;">${badge}</div>
+                        <p style="${h.type === 'strike' ? 'text-decoration: line-through; color: var(--text-muted);' : ''}">
+                            <i>"${h.text}"</i>
+                        </p>
+                        ${h.comment ? `<div class="hl-comment"><b>Nota:</b> ${h.comment}</div>` : ''}
+                        <div class="hl-meta"><span>Tema: ${h.origin}</span> <span>${h.date}</span></div>
+                    </div>
+                `;
+            }).join('');
         }
 
         function clearHighlights() {
-            if(confirm("¿Borrar todos los destacados?")) {
-                localStorage.removeItem('cedos_hls'); renderHighlights();
+            if(confirm("¿Borrar TODAS las anotaciones (destacados, comentarios y correcciones)?")) {
+                localStorage.removeItem('cedos_hls'); 
+                renderHighlights();
+                if(currentTopic) loadTopic(currentTopic.path, currentTopic.name); // Recargar texto limpio
             }
         }
 
