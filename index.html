@@ -19,14 +19,20 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
         body { background: var(--bg-base); color: var(--text-main); line-height: 1.6; transition: background 0.3s, color 0.3s; padding-bottom: 80px; }
 
-        /* HEADER & CUENTA ATRÁS */
+        /* HEADER, TÍTULO & CUENTA ATRÁS */
         header {
             position: sticky; top: 0; z-index: 50; background: var(--bg-surface);
             box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; flex-direction: column;
         }
-        .time-header { padding: 4px 1rem; text-align: center; }
-        .time-text { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
-        .time-bar-container { width: 100%; height: 4px; background: var(--border); border-radius: 4px; display: flex; justify-content: flex-end; }
+        .app-title-bar {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 12px 0 8px 0; font-weight: 600; font-size: 1.15rem; color: var(--primary);
+        }
+        .app-title-bar svg { width: 22px; height: 22px; stroke-width: 1.5; stroke: currentColor; fill: none; }
+        
+        .time-header { padding: 4px 1.5rem 10px 1.5rem; text-align: right; }
+        .time-text { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+        .time-bar-container { width: 100%; height: 4px; background: var(--border); border-radius: 4px; display: flex; justify-content: flex-end; overflow: hidden; }
         .time-bar { height: 100%; background: var(--primary); border-radius: 4px; transition: width 1s; }
 
         /* NAVEGACIÓN (6 PESTAÑAS) */
@@ -63,7 +69,7 @@
         .folder-prog { height: 2px; background: var(--primary); width: 0%; }
 
         /* LECTOR DE TEMAS */
-        .reader-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; background: var(--bg-surface); padding: 1rem; border-radius: 8px; border: 1px solid var(--border); position: sticky; top: 70px; z-index: 40; }
+        .reader-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; background: var(--bg-surface); padding: 1rem; border-radius: 8px; border: 1px solid var(--border); position: sticky; top: 110px; z-index: 40; }
         #reader-content { background: var(--bg-surface); padding: 2rem; border-radius: 8px; font-size: 1.05rem; }
         #reader-content h1 { color: var(--primary); font-size: 1.5rem; margin-bottom: 1rem; }
         #reader-content h2 { margin-top: 1.5rem; margin-bottom: 0.5rem; }
@@ -81,7 +87,7 @@
         .btn { display: inline-flex; align-items: center; gap: 8px; padding: 0.75rem 1rem; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; color: var(--text-main); cursor: pointer; font-size: 0.9rem; }
         .btn-primary { background: var(--primary); color: white; border: none; }
         .card { background: var(--bg-surface); padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid var(--border); }
-        input[type="text"] { width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-base); color: var(--text-main); margin-bottom: 0.5rem; }
+        img { max-width: 100%; height: auto; border-radius: 8px; }
     </style>
 </head>
 <body>
@@ -89,12 +95,18 @@
     <div id="hl-bubble" onclick="addHighlight()">Destacar y Comentar</div>
 
     <header>
+        <div class="app-title-bar">
+            <svg viewBox="0 0 24 24"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+            CeDos
+        </div>
+
         <div class="time-header">
             <div class="time-text" id="time-text">0 días hasta el 28N</div>
             <div class="time-bar-container">
                 <div class="time-bar" id="time-bar"></div>
             </div>
         </div>
+
         <nav>
             <div class="nav-tab active" onclick="navTo('general')">
                 <svg viewBox="0 0 24 24"><path d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0A2.25 2.25 0 001.5 12v4.5c0 1.243 1.007 2.25 2.25 2.25h16.5A2.25 2.25 0 0022.5 16.5V12a2.25 2.25 0 00-2.25-2.224m-16.5 0V6c0-1.243 1.007-2.25 2.25-2.25h16.5A2.25 2.25 0 0022.5 6v3.776M10.5 15h3"></path></svg>
@@ -157,12 +169,26 @@
         </section>
 
         <section id="varios" class="section">
-            <h2 style="margin-bottom: 1rem;">Convocatoria e Información</h2>
+            <h2 style="margin-bottom: 1rem;">Documentación de Apoyo</h2>
+            
             <div class="card">
-                <a href="convocatoria.pdf" target="_blank" style="text-decoration: none; color: var(--primary); font-weight: 500; display: flex; align-items: center; gap: 8px;">
-                    <svg viewBox="0 0 24 24" style="width:20px; height:20px; stroke:currentColor; fill:none;"><path stroke-width="1.5" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"></path></svg>
-                    Ver PDF Convocatoria (70/26)
+                <h3>Documentos Oficiales</h3>
+                <a href="convocatoria.pdf" target="_blank" class="file-item" style="text-decoration:none; color:var(--text-main); margin-top: 0.5rem;">
+                   <div class="file-title">
+                        <svg viewBox="0 0 24 24" style="width:16px; height:16px; stroke:var(--primary); fill:none;"><path stroke-width="1.5" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"></path></svg>
+                        Ver PDF Convocatoria (70/26)
+                   </div>
                 </a>
+            </div>
+
+            <div class="card">
+                <h3>Estructura del Temario</h3>
+                <img src="temario.png" alt="Mapa del Temario" style="margin-top: 0.5rem; border: 1px solid var(--border);">
+            </div>
+
+            <div class="card">
+                <h3>Otros Archivos (Carpeta Varios)</h3>
+                <div id="tree-varios" style="margin-top: 0.5rem;"></div>
             </div>
         </section>
 
@@ -175,16 +201,17 @@
             </div>
 
             <div class="card">
-                <h3>Sincronizar Temario (GitHub)</h3>
-                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Crea la estructura de subcarpetas leyendo los HTML de tu repositorio público.</p>
-                <input type="text" id="gh-user" placeholder="Usuario de GitHub">
-                <input type="text" id="gh-repo" placeholder="Nombre del repositorio">
-                <button class="btn btn-primary" onclick="syncRepo()" id="btn-sync">Escanear y Generar</button>
+                <h3>Sincronizar Temario</h3>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Actualiza la estructura de carpetas automáticamente desde tu repositorio GitHub.</p>
+                <button class="btn btn-primary" onclick="syncRepo()" id="btn-sync">
+                    <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;"><path stroke-width="1.5" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"></path></svg>
+                    Escanear y Generar
+                </button>
             </div>
 
             <div class="card">
                 <h3>Datos Locales</h3>
-                <div style="display: flex; gap: 10px;">
+                <div style="display: flex; gap: 10px; margin-top: 0.5rem;">
                     <button class="btn" onclick="exportBackup()">Backup (.json)</button>
                     <label class="btn">Restore <input type="file" hidden onchange="importBackup(event)"></label>
                 </div>
@@ -192,7 +219,7 @@
 
             <div class="card">
                 <h3>Actualizaciones (OTA)</h3>
-                <button class="btn" onclick="window.location.reload(true)">Recargar App</button>
+                <button class="btn" onclick="window.location.reload(true)" style="margin-top: 0.5rem;">Recargar App</button>
             </div>
         </section>
 
@@ -212,11 +239,15 @@
     </main>
 
     <script>
-        // --- ESTADO Y DATOS ---
+        // --- CONFIGURACIÓN DE REPOSITORIO Y FECHAS ---
+        const GITHUB_USER = 'Larafuzas';
+        const GITHUB_REPO = 'CeDos';
         const EXAM_DATE = new Date('2026-11-28T00:00:00');
-        const START_DATE = new Date('2026-01-01T00:00:00'); // Origen visual de la barra
+        const START_DATE = new Date('2026-01-01T00:00:00'); 
         
-        let dbTree = JSON.parse(localStorage.getItem('cedos_tree')) || { General: {}, Especifico: {} };
+        let dbTree = JSON.parse(localStorage.getItem('cedos_tree')) || { General: {}, Especifico: {}, Varios: [] };
+        if(!dbTree.Varios) dbTree.Varios = []; // Compatibilidad con datos anteriores
+
         let lastTab = 'general';
         let currentTopic = null;
         let selectedTextTemp = "";
@@ -227,9 +258,6 @@
             applyTheme();
             renderTrees();
             updateStats();
-            
-            if(localStorage.getItem('gh_user')) document.getElementById('gh-user').value = localStorage.getItem('gh_user');
-            if(localStorage.getItem('gh_repo')) document.getElementById('gh-repo').value = localStorage.getItem('gh_repo');
         });
 
         // --- BARRA DE TIEMPO INVERTIDA ---
@@ -241,13 +269,12 @@
                 
                 document.getElementById('time-text').innerText = `${Math.max(0, daysLeft)} días hasta el 28N`;
                 
-                // Vaciado hacia la derecha = la barra se ancla a la derecha y su width se reduce.
                 let pct = (daysLeft / totalDays) * 100;
                 if(pct < 0) pct = 0; if(pct > 100) pct = 100;
                 document.getElementById('time-bar').style.width = `${pct}%`;
             };
             updateTime();
-            setInterval(updateTime, 3600000); // 1 hora
+            setInterval(updateTime, 3600000); // Actualiza cada hora
         }
 
         // --- NAVEGACIÓN ---
@@ -257,7 +284,6 @@
             
             document.getElementById(tabId).classList.add('active');
             
-            // Buscar la pestaña correspondiente y activarla
             const tabElements = document.querySelectorAll('.nav-tab');
             for(let el of tabElements) {
                 if(el.getAttribute('onclick').includes(tabId)) {
@@ -282,33 +308,42 @@
             localStorage.setItem('cedos_theme', curr);
         }
 
-        // --- GITHUB API SCANNERS ---
+        // --- GITHUB API SCANNERS (Adaptado a rutas complejas) ---
         async function syncRepo() {
-            const user = document.getElementById('gh-user').value.trim();
-            const repo = document.getElementById('gh-repo').value.trim();
-            if(!user || !repo) return alert('Faltan datos.');
-            
-            localStorage.setItem('gh_user', user);
-            localStorage.setItem('gh_repo', repo);
             const btn = document.getElementById('btn-sync');
-            btn.innerText = 'Escaneando...'; btn.disabled = true;
+            btn.innerHTML = 'Escaneando...'; btn.disabled = true;
 
             try {
-                const bInfo = await fetch(`https://api.github.com/repos/${user}/${repo}`).then(r=>r.json());
-                const treeUrl = `https://api.github.com/repos/${user}/${repo}/git/trees/${bInfo.default_branch}?recursive=1`;
+                const bInfo = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}`).then(r=>r.json());
+                if(bInfo.message) throw new Error(bInfo.message);
+
+                const treeUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/git/trees/${bInfo.default_branch}?recursive=1`;
                 const data = await fetch(treeUrl).then(r=>r.json());
                 
-                const newTree = { General: {}, Especifico: {} };
+                const newTree = { General: {}, Especifico: {}, Varios: [] };
+                
                 data.tree.forEach(f => {
                     if(f.path.endsWith('.html')) {
                         const pts = f.path.split('/');
-                        // Estructura esperada: General/Subcarpeta/Tema.html o Especifico/...
-                        if(pts[0] === 'General' || pts[0] === 'Específico' || pts[0] === 'Especifico') {
-                            const root = pts[0] === 'General' ? 'General' : 'Especifico';
-                            const sub = pts.length > 2 ? pts[1] : 'Raíz';
+                        
+                        // Parsear Temario/...
+                        if(pts[0] === 'Temario' && pts.length >= 3) {
+                            // Normalizamos acentos para aceptar "Específico" o "Especifico"
+                            const rootRaw = pts[1].normalize("NFD").replace(/[\u0300-\u036f]/g, ""); 
+                            
+                            if(rootRaw === 'General' || rootRaw === 'Especifico') {
+                                // Si hay subcarpetas coge la que toque, si no lo mete en una carpeta Raíz
+                                const sub = pts.length > 3 ? pts[2] : 'General';
+                                const file = pts[pts.length - 1];
+                                
+                                if(!newTree[rootRaw][sub]) newTree[rootRaw][sub] = [];
+                                newTree[rootRaw][sub].push({ path: f.path, name: file });
+                            }
+                        } 
+                        // Parsear Varios/...
+                        else if (pts[0] === 'Varios' && pts.length >= 2) {
                             const file = pts[pts.length - 1];
-                            if(!newTree[root][sub]) newTree[root][sub] = [];
-                            newTree[root][sub].push({ path: f.path, name: file });
+                            newTree.Varios.push({ path: f.path, name: file });
                         }
                     }
                 });
@@ -317,9 +352,11 @@
                 localStorage.setItem('cedos_tree', JSON.stringify(newTree));
                 renderTrees();
                 updateStats();
-                alert('Estructura generada con éxito.');
-            } catch(e) { alert('Error: ' + e.message); }
-            btn.innerText = 'Escanear y Generar'; btn.disabled = false;
+                alert('Estructura generada con éxito desde GitHub.');
+            } catch(e) { 
+                alert('Error al escanear: Asegúrate de que el repositorio es público y la estructura de carpetas es correcta. Detalle: ' + e.message); 
+            }
+            btn.innerHTML = 'Escanear y Generar'; btn.disabled = false;
         }
 
         // --- RENDERIZADO DE CARPETAS ---
@@ -327,7 +364,6 @@
             const buildHtml = (rootData) => {
                 let html = '';
                 for(let [sub, files] of Object.entries(rootData)) {
-                    // Calc folder progress
                     let folderTotal = files.length;
                     let folderDone = files.filter(f => localStorage.getItem(`c_${f.path}`) === 'true').length;
                     let fPct = folderTotal ? (folderDone/folderTotal)*100 : 0;
@@ -363,6 +399,17 @@
 
             document.getElementById('tree-general').innerHTML = buildHtml(dbTree.General);
             document.getElementById('tree-especifico').innerHTML = buildHtml(dbTree.Especifico);
+
+            // Renderizado independiente de la carpeta Varios
+            const variosHtml = (dbTree.Varios || []).map(f => `
+                <div class="file-item" onclick="loadTopic('${f.path}', '${f.name}')">
+                    <div class="file-title">
+                        <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:var(--primary);fill:none;"><path stroke-width="1.5" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"></path></svg>
+                        ${f.name.replace('.html', '')}
+                    </div>
+                </div>
+            `).join('');
+            document.getElementById('tree-varios').innerHTML = variosHtml || '<p style="color:var(--text-muted); font-size:0.85rem;">No hay archivos HTML en la carpeta Varios.</p>';
         }
 
         function toggleListCheck(path, cb) {
@@ -375,14 +422,15 @@
             navTo('reader');
             currentTopic = { path, name: name.replace('.html', '') };
             document.getElementById('reader-title').innerText = currentTopic.name;
+            
+            // Si es un archivo de Varios, igual no necesitamos el checkbox, pero no hace daño dejarlo.
             document.getElementById('reader-check').checked = localStorage.getItem(`c_${path}`) === 'true';
             document.getElementById('reader-scroll-bar').style.width = (localStorage.getItem(`p_${path}`) || 0) + '%';
             
             const cont = document.getElementById('reader-content');
-            cont.innerHTML = '<p>Cargando tema...</p>';
+            cont.innerHTML = '<p>Cargando archivo...</p>';
             
             try {
-                // Añadimos cache buster local
                 const res = await fetch(path + '?t=' + Date.now());
                 if(!res.ok) throw new Error();
                 cont.innerHTML = await res.text();
@@ -400,7 +448,7 @@
             renderTrees(); updateStats();
         }
 
-        // Track scroll progress on the window (since the content pushes the body down)
+        // Track scroll progress on the window
         window.addEventListener('scroll', () => {
             if(document.getElementById('reader').classList.contains('active') && currentTopic) {
                 const docEl = document.documentElement;
@@ -409,12 +457,12 @@
                 if(totalScroll > 0) pct = Math.round((window.scrollY / totalScroll) * 100);
                 if(pct > 98) pct = 100;
                 
-                // Solo guardar si es mayor que el progreso anterior y no está marcado manual
                 if(localStorage.getItem(`c_${currentTopic.path}`) !== 'true') {
                     let oldP = parseInt(localStorage.getItem(`p_${currentTopic.path}`) || 0);
                     if(pct > oldP) {
                         localStorage.setItem(`p_${currentTopic.path}`, pct);
                         document.getElementById('reader-scroll-bar').style.width = pct + '%';
+                        renderTrees(); // Actualiza la barrita pequeña si vuelves
                     }
                 }
             }
@@ -438,7 +486,7 @@
         function addHighlight() {
             document.getElementById('hl-bubble').style.display = 'none';
             const comment = prompt("Añadir comentario (opcional):");
-            if(comment === null) return; // Cancelado
+            if(comment === null) return; 
 
             let hls = JSON.parse(localStorage.getItem('cedos_hls')) || [];
             hls.push({
@@ -461,7 +509,7 @@
                 <div class="hl-card">
                     <p><i>"${h.text}"</i></p>
                     ${h.comment ? `<div class="hl-comment"><b>Nota:</b> ${h.comment}</div>` : ''}
-                    <div class="hl-meta">Tema: ${h.origin} • ${h.date}</div>
+                    <div class="hl-meta">Origen: ${h.origin} • ${h.date}</div>
                 </div>
             `).join('');
         }
