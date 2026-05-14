@@ -12,8 +12,8 @@
     <meta name="application-name" content="CeDos">
     <meta name="theme-color" content="#ffffff">
 
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='512' height='512'%3E%3Cpath d='M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253' fill='none' stroke='%233b82f6' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='512' height='512'%3E%3Crect width='24' height='24' fill='%23ffffff'/%3E%3Cpath d='M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253' fill='none' stroke='%233b82f6' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+    <link rel="icon" href="icono.png" type="image/png">
+    <link rel="apple-touch-icon" href="icono.png">
     <style>
         /* Variables de Tema */
         :root {
@@ -275,7 +275,7 @@
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <h3>CeDos - Actualizaciones</h3>
-                    <span style="background: var(--primary-light); color: var(--primary); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">v1.6.1</span>
+                    <span style="background: var(--primary-light); color: var(--primary); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">v1.6.2</span>
                 </div>
                 <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; margin-top: 0.5rem;">Fuerza la recarga para aplicar actualizaciones del código base.</p>
                 <button class="btn" onclick="window.location.reload(true)" style="width: 100%; justify-content: center;">
@@ -294,7 +294,7 @@
 
             <div class="card">
                 <h3>Sincronizar Temario</h3>
-                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Actualiza la estructura de carpetas desde GitHub.</p>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Actualiza la estructura de carpetas automáticamente desde GitHub.</p>
                 <button class="btn btn-primary" onclick="syncRepo()" id="btn-sync" style="width: 100%; justify-content: center;">
                     <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;"><path stroke-width="1.5" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"></path></svg>
                     Escanear y Generar
@@ -400,7 +400,6 @@
             const t = localStorage.getItem('cedos_theme') || 'light';
             document.documentElement.setAttribute('data-theme', t);
             
-            // Actualizar color de la barra de estado móvil nativa
             const metaTheme = document.querySelector("meta[name=theme-color]");
             if(metaTheme) metaTheme.setAttribute("content", t === 'dark' ? '#1e293b' : '#ffffff');
         }
@@ -520,7 +519,7 @@
                     </div>
                 </div>
             `).join('');
-            document.getElementById('tree-varios').innerHTML = variosHtml || '<p style="color:var(--text-muted); font-size:0.85rem;">No hay archivos.</p>';
+            document.getElementById('tree-varios').innerHTML = variosHtml || '<p style="color:var(--text-muted); font-size:0.85rem;">No hay archivos HTML adicionales en la carpeta Varios.</p>';
         }
 
         function toggleListCheck(path, cb) {
@@ -597,7 +596,11 @@
                 }, 400); 
                 
             } catch {
-                cont.innerHTML = `<p style="color:var(--danger)">No se pudo cargar el archivo: <b>${path}</b></p>`;
+                cont.innerHTML = `
+                    <div style="color:var(--danger); border:1px solid var(--danger); padding:1rem; border-radius:8px;">
+                        <svg viewBox="0 0 24 24" style="width:24px;height:24px;stroke:currentColor;fill:none;margin-bottom:0.5rem;"><path stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        <p>No se pudo cargar el archivo: <b>${path}</b></p>
+                    </div>`;
             }
         }
 
