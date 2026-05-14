@@ -28,7 +28,7 @@
             display: flex; align-items: center; justify-content: center; gap: 8px;
             padding: 12px 0 8px 0; font-weight: 600; font-size: 1.15rem; color: var(--primary);
         }
-        .app-title-bar svg { width: 22px; height: 22px; stroke-width: 1.5; stroke: currentColor; fill: none; }
+        .app-title-bar svg { width: 24px; height: 24px; stroke-width: 1.5; stroke: currentColor; fill: none; }
         
         .time-header { padding: 4px 1.5rem 10px 1.5rem; text-align: right; }
         .time-text { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
@@ -68,12 +68,24 @@
         .prog-bar { height: 100%; background: var(--success); width: 0%; transition: width 0.3s; }
         .folder-prog { height: 2px; background: var(--primary); width: 0%; }
 
-        /* LECTOR DE TEMAS */
+        /* LECTOR DE TEMAS (CSS ANTI-DESBORDAMIENTO INCLUIDO) */
         .reader-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; background: var(--bg-surface); padding: 1rem; border-radius: 8px; border: 1px solid var(--border); position: sticky; top: 110px; z-index: 40; }
-        #reader-content { background: var(--bg-surface); padding: 2rem; border-radius: 8px; font-size: 1.05rem; }
-        #reader-content h1 { color: var(--primary); font-size: 1.5rem; margin-bottom: 1rem; }
-        #reader-content h2 { margin-top: 1.5rem; margin-bottom: 0.5rem; }
-        #reader-content p { margin-bottom: 1rem; }
+        
+        #reader-content { 
+            background: var(--bg-surface); 
+            padding: 1.5rem; 
+            border-radius: 8px; 
+            font-size: 1.05rem; 
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            word-break: break-word;
+            max-width: 100%;
+            overflow-x: hidden; 
+        }
+        #reader-content img, #reader-content table, #reader-content pre { max-width: 100%; overflow-x: auto; display: block; }
+        #reader-content h1 { color: var(--primary); font-size: 1.4rem; margin-bottom: 1rem; line-height: 1.3;}
+        #reader-content h2 { margin-top: 1.5rem; margin-bottom: 0.5rem; font-size: 1.2rem; line-height: 1.3;}
+        #reader-content p, #reader-content ul { margin-bottom: 1rem; }
         
         /* BURBUJA DE SUBRAYADO */
         #hl-bubble { position: absolute; display: none; background: #1e293b; color: #fff; padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; z-index: 100; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
@@ -202,7 +214,7 @@
 
             <div class="card">
                 <h3>Sincronizar Temario</h3>
-                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Actualiza la estructura de carpetas automáticamente desde tu repositorio GitHub.</p>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Actualiza la estructura de carpetas automáticamente desde el repositorio.</p>
                 <button class="btn btn-primary" onclick="syncRepo()" id="btn-sync">
                     <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;"><path stroke-width="1.5" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"></path></svg>
                     Escanear y Generar
@@ -239,14 +251,14 @@
     </main>
 
     <script>
-        // --- CONFIGURACIÓN DE REPOSITORIO Y FECHAS ---
+        // --- CONFIGURACIÓN DE REPOSITORIO Y FECHAS (Credenciales ocultas) ---
         const GITHUB_USER = 'Larafuzas';
         const GITHUB_REPO = 'CeDos';
         const EXAM_DATE = new Date('2026-11-28T00:00:00');
         const START_DATE = new Date('2026-01-01T00:00:00'); 
         
         let dbTree = JSON.parse(localStorage.getItem('cedos_tree')) || { General: {}, Especifico: {}, Varios: [] };
-        if(!dbTree.Varios) dbTree.Varios = []; // Compatibilidad con datos anteriores
+        if(!dbTree.Varios) dbTree.Varios = [];
 
         let lastTab = 'general';
         let currentTopic = null;
@@ -274,7 +286,7 @@
                 document.getElementById('time-bar').style.width = `${pct}%`;
             };
             updateTime();
-            setInterval(updateTime, 3600000); // Actualiza cada hora
+            setInterval(updateTime, 3600000); 
         }
 
         // --- NAVEGACIÓN ---
@@ -308,7 +320,7 @@
             localStorage.setItem('cedos_theme', curr);
         }
 
-        // --- GITHUB API SCANNERS (Adaptado a rutas complejas) ---
+        // --- GITHUB API SCANNERS ---
         async function syncRepo() {
             const btn = document.getElementById('btn-sync');
             btn.innerHTML = 'Escaneando...'; btn.disabled = true;
@@ -326,13 +338,9 @@
                     if(f.path.endsWith('.html')) {
                         const pts = f.path.split('/');
                         
-                        // Parsear Temario/...
                         if(pts[0] === 'Temario' && pts.length >= 3) {
-                            // Normalizamos acentos para aceptar "Específico" o "Especifico"
                             const rootRaw = pts[1].normalize("NFD").replace(/[\u0300-\u036f]/g, ""); 
-                            
                             if(rootRaw === 'General' || rootRaw === 'Especifico') {
-                                // Si hay subcarpetas coge la que toque, si no lo mete en una carpeta Raíz
                                 const sub = pts.length > 3 ? pts[2] : 'General';
                                 const file = pts[pts.length - 1];
                                 
@@ -340,7 +348,6 @@
                                 newTree[rootRaw][sub].push({ path: f.path, name: file });
                             }
                         } 
-                        // Parsear Varios/...
                         else if (pts[0] === 'Varios' && pts.length >= 2) {
                             const file = pts[pts.length - 1];
                             newTree.Varios.push({ path: f.path, name: file });
@@ -352,9 +359,9 @@
                 localStorage.setItem('cedos_tree', JSON.stringify(newTree));
                 renderTrees();
                 updateStats();
-                alert('Estructura generada con éxito desde GitHub.');
+                alert('Estructura generada con éxito.');
             } catch(e) { 
-                alert('Error al escanear: Asegúrate de que el repositorio es público y la estructura de carpetas es correcta. Detalle: ' + e.message); 
+                alert('Error al escanear: ' + e.message); 
             }
             btn.innerHTML = 'Escanear y Generar'; btn.disabled = false;
         }
@@ -394,13 +401,12 @@
                     });
                     html += `</div></div>`;
                 }
-                return html || '<p style="color:var(--text-muted); font-size:0.9rem;">Sin contenido. Escanea el repositorio en Ajustes.</p>';
+                return html || '<p style="color:var(--text-muted); font-size:0.9rem;">Sin contenido. Escanea desde Ajustes.</p>';
             };
 
             document.getElementById('tree-general').innerHTML = buildHtml(dbTree.General);
             document.getElementById('tree-especifico').innerHTML = buildHtml(dbTree.Especifico);
 
-            // Renderizado independiente de la carpeta Varios
             const variosHtml = (dbTree.Varios || []).map(f => `
                 <div class="file-item" onclick="loadTopic('${f.path}', '${f.name}')">
                     <div class="file-title">
@@ -409,7 +415,7 @@
                     </div>
                 </div>
             `).join('');
-            document.getElementById('tree-varios').innerHTML = variosHtml || '<p style="color:var(--text-muted); font-size:0.85rem;">No hay archivos HTML en la carpeta Varios.</p>';
+            document.getElementById('tree-varios').innerHTML = variosHtml || '<p style="color:var(--text-muted); font-size:0.85rem;">No hay archivos HTML adicionales en la carpeta Varios.</p>';
         }
 
         function toggleListCheck(path, cb) {
@@ -422,8 +428,6 @@
             navTo('reader');
             currentTopic = { path, name: name.replace('.html', '') };
             document.getElementById('reader-title').innerText = currentTopic.name;
-            
-            // Si es un archivo de Varios, igual no necesitamos el checkbox, pero no hace daño dejarlo.
             document.getElementById('reader-check').checked = localStorage.getItem(`c_${path}`) === 'true';
             document.getElementById('reader-scroll-bar').style.width = (localStorage.getItem(`p_${path}`) || 0) + '%';
             
@@ -448,7 +452,6 @@
             renderTrees(); updateStats();
         }
 
-        // Track scroll progress on the window
         window.addEventListener('scroll', () => {
             if(document.getElementById('reader').classList.contains('active') && currentTopic) {
                 const docEl = document.documentElement;
@@ -462,7 +465,7 @@
                     if(pct > oldP) {
                         localStorage.setItem(`p_${currentTopic.path}`, pct);
                         document.getElementById('reader-scroll-bar').style.width = pct + '%';
-                        renderTrees(); // Actualiza la barrita pequeña si vuelves
+                        renderTrees(); 
                     }
                 }
             }
