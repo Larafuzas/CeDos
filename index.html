@@ -1,520 +1,518 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CeDos - C2-01 Generalitat Valenciana</title>
+    <title>CeDos - C2-01 GVA</title>
     <style>
+        /* Variables de Tema */
         :root {
-            --primary: #2563eb; --bg-color: #f8fafc; --surface: #ffffff;
-            --text-main: #1e293b; --text-muted: #64748b; --border: #e2e8f0;
-            --progress-bg: #dbeafe; --highlight: #fef08a; --hover: #f1f5f9;
+            --bg-base: #f8fafc; --bg-surface: #ffffff; --text-main: #0f172a; --text-muted: #64748b;
+            --border: #e2e8f0; --primary: #3b82f6; --primary-light: #dbeafe; --highlight: #fef08a;
+            --danger: #ef4444; --success: #10b981;
+        }
+        [data-theme="dark"] {
+            --bg-base: #0f172a; --bg-surface: #1e293b; --text-main: #f8fafc; --text-muted: #94a3b8;
+            --border: #334155; --primary: #60a5fa; --primary-light: #1e3a8a; --highlight: #854d0e;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-main); line-height: 1.6; overflow-x: hidden; }
+        body { background: var(--bg-base); color: var(--text-main); line-height: 1.6; transition: background 0.3s, color 0.3s; padding-bottom: 80px; }
 
-        /* Header */
+        /* HEADER & CUENTA ATRÁS */
         header {
-            background: var(--surface); padding: 1rem; position: sticky; top: 0; z-index: 50;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; flex-direction: column; gap: 0.5rem;
+            position: sticky; top: 0; z-index: 50; background: var(--bg-surface);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; flex-direction: column;
         }
-        .top-bar { display: flex; justify-content: space-between; align-items: center; }
-        .app-title { font-weight: 600; font-size: 1.25rem; color: var(--primary); display: flex; align-items: center; gap: 0.5rem; cursor: pointer; }
-        .menu-btn { background: none; border: none; cursor: pointer; color: var(--text-main); padding: 0.25rem; }
-        .version-badge { font-size: 0.7rem; background: var(--progress-bg); padding: 2px 8px; border-radius: 10px; color: var(--primary); font-weight: normal; margin-left: 0.5rem;}
-        
-        /* Progress */
-        .progress-container { width: 100%; background: var(--progress-bg); border-radius: 999px; height: 6px; overflow: hidden; }
-        .progress-bar { height: 100%; background: var(--primary); width: 0%; transition: width 0.3s ease; }
-        .progress-text { font-size: 0.75rem; color: var(--text-muted); text-align: right; margin-top: 2px; }
+        .time-header { padding: 4px 1rem; text-align: center; }
+        .time-text { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
+        .time-bar-container { width: 100%; height: 4px; background: var(--border); border-radius: 4px; display: flex; justify-content: flex-end; }
+        .time-bar { height: 100%; background: var(--primary); border-radius: 4px; transition: width 1s; }
 
-        /* Drawer / Menú Lateral */
-        .drawer {
-            position: fixed; top: 0; left: -320px; width: 300px; height: 100vh;
-            background: var(--surface); box-shadow: 2px 0 8px rgba(0,0,0,0.1);
-            transition: left 0.3s ease; z-index: 100; overflow-y: auto; padding: 2rem 1rem;
+        /* NAVEGACIÓN (6 PESTAÑAS) */
+        nav {
+            display: flex; justify-content: space-around; padding: 0.75rem 0; border-top: 1px solid var(--border);
+            background: var(--bg-surface); overflow-x: auto;
         }
-        .drawer.open { left: 0; }
-        .drawer-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); display: none; z-index: 90; }
-        .drawer-overlay.open { display: block; }
-        
-        .nav-item { 
-            padding: 0.75rem 0.5rem; border-bottom: 1px solid var(--border); cursor: pointer; 
-            display: flex; align-items: center; gap: 0.75rem; font-weight: 500; border-radius: 6px;
+        .nav-tab {
+            display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-muted);
+            cursor: pointer; flex: 1; min-width: 60px; transition: color 0.2s;
         }
-        .nav-item:hover { background-color: var(--hover); color: var(--primary); }
-        
-        /* Submenús en el Drawer */
-        .folder-group { margin-left: 1.5rem; display: none; border-left: 1px solid var(--border); padding-left: 0.5rem; margin-top: 0.25rem; }
-        .folder-group.open { display: block; }
-        .folder-title { 
-            font-size: 0.9rem; padding: 0.5rem; cursor: pointer; display: flex; justify-content: space-between; 
-            color: var(--text-muted); border-radius: 4px; 
-        }
-        .folder-title:hover { background: var(--hover); color: var(--text-main); }
-        .file-item { 
-            font-size: 0.85rem; padding: 0.5rem 0.5rem 0.5rem 1.5rem; cursor: pointer; 
-            color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;
-        }
-        .file-item:hover { color: var(--primary); text-decoration: underline; }
+        .nav-tab.active { color: var(--primary); }
+        .nav-tab svg { width: 22px; height: 22px; stroke-width: 1.2; stroke: currentColor; fill: none; }
+        .nav-tab span { font-size: 0.65rem; font-weight: 500; }
 
-        /* Main Content */
-        main { padding: 1.5rem; max-width: 800px; margin: 0 auto; min-height: 80vh; }
-        .section { display: none; animation: fadeIn 0.3s ease; }
+        /* MAIN CONTENT */
+        main { padding: 1.5rem; max-width: 800px; margin: 0 auto; }
+        .section { display: none; animation: fadeIn 0.2s ease; }
         .section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        .card { background: var(--surface); padding: 1.5rem; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 1.5rem; }
-        .btn { 
-            display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.25rem; 
-            border-radius: 8px; border: 1px solid var(--border); background: var(--surface); 
-            cursor: pointer; font-size: 0.9rem; transition: all 0.2s;
-        }
-        .btn-primary { background: var(--primary); color: white; border: none; }
-        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        /* CARPETAS Y ARCHIVOS */
+        .folder { border: 1px solid var(--border); border-radius: 8px; margin-bottom: 1rem; background: var(--bg-surface); overflow: hidden; }
+        .folder-header { padding: 1rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 500; }
+        .folder-content { border-top: 1px solid var(--border); padding: 0.5rem; display: none; }
+        .folder.open .folder-content { display: block; }
+        .file-item { padding: 0.75rem; display: flex; flex-direction: column; gap: 0.5rem; cursor: pointer; border-radius: 6px; }
+        .file-item:hover { background: var(--bg-base); }
+        .file-title { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
         
-        /* Lector de Temas */
-        #reader-content { 
-            background: var(--surface); padding: 2rem; border-radius: 12px; 
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1); min-height: 60vh; 
-        }
-        #reader-content h1 { font-size: 1.5rem; color: var(--primary); margin-bottom: 1.5rem; border-bottom: 2px solid var(--border); padding-bottom: 0.5rem; }
-        #reader-content h2 { font-size: 1.25rem; color: var(--text-main); margin-top: 1.5rem; margin-bottom: 1rem; }
-        #reader-content h3 { font-size: 1.1rem; color: var(--text-main); margin-top: 1.25rem; margin-bottom: 0.75rem; }
-        #reader-content p, #reader-content ul, #reader-content ol { margin-bottom: 1rem; }
-        #reader-content li { margin-bottom: 0.5rem; margin-left: 1.5rem; }
-        #reader-content blockquote { border-left: 4px solid var(--primary); padding-left: 1rem; margin-left: 0; color: var(--text-muted); background: var(--hover); padding: 1rem; border-radius: 0 8px 8px 0; }
-        
-        /* Highlights UI */
-        #highlight-bubble {
-            position: absolute; display: none; background: #1e293b; color: white; padding: 6px 14px;
-            border-radius: 20px; font-size: 13px; cursor: pointer; z-index: 200; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-        }
-        .h-item { border-left: 3px solid var(--primary); padding-left: 1rem; margin-bottom: 1.5rem; }
-        .h-origin { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+        /* BARRAS DE PROGRESO DE TEMAS */
+        .prog-container { width: 100%; height: 4px; background: var(--border); border-radius: 4px; overflow: hidden; }
+        .prog-bar { height: 100%; background: var(--success); width: 0%; transition: width 0.3s; }
+        .folder-prog { height: 2px; background: var(--primary); width: 0%; }
 
-        svg { width: 20px; height: 20px; stroke-width: 1.5; stroke: currentColor; fill: none; }
+        /* LECTOR DE TEMAS */
+        .reader-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; background: var(--bg-surface); padding: 1rem; border-radius: 8px; border: 1px solid var(--border); position: sticky; top: 70px; z-index: 40; }
+        #reader-content { background: var(--bg-surface); padding: 2rem; border-radius: 8px; font-size: 1.05rem; }
+        #reader-content h1 { color: var(--primary); font-size: 1.5rem; margin-bottom: 1rem; }
+        #reader-content h2 { margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        #reader-content p { margin-bottom: 1rem; }
+        
+        /* BURBUJA DE SUBRAYADO */
+        #hl-bubble { position: absolute; display: none; background: #1e293b; color: #fff; padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; z-index: 100; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
+
+        /* LISTA DESTACADOS */
+        .hl-card { background: var(--bg-surface); border-left: 3px solid var(--primary); padding: 1rem; margin-bottom: 1rem; border-radius: 0 8px 8px 0; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .hl-comment { background: var(--primary-light); padding: 0.5rem; border-radius: 6px; margin-top: 0.5rem; font-size: 0.85rem; color: var(--text-main); }
+        .hl-meta { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.5rem; }
+
+        /* COMPONENTES GENERALES */
+        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 0.75rem 1rem; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; color: var(--text-main); cursor: pointer; font-size: 0.9rem; }
+        .btn-primary { background: var(--primary); color: white; border: none; }
+        .card { background: var(--bg-surface); padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid var(--border); }
+        input[type="text"] { width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-base); color: var(--text-main); margin-bottom: 0.5rem; }
     </style>
 </head>
 <body>
 
-    <div id="highlight-bubble" onclick="saveSelectedText()">Guardar Destacado</div>
+    <div id="hl-bubble" onclick="addHighlight()">Destacar y Comentar</div>
 
     <header>
-        <div class="top-bar">
-            <div class="app-title" onclick="showSection('home')">
-                <svg viewBox="0 0 24 24"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-                CeDos <span class="version-badge">v1.3.0</span>
+        <div class="time-header">
+            <div class="time-text" id="time-text">0 días hasta el 28N</div>
+            <div class="time-bar-container">
+                <div class="time-bar" id="time-bar"></div>
             </div>
-            <button class="menu-btn" onclick="toggleMenu()">
-                <svg viewBox="0 0 24 24"><path d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"></path></svg>
-            </button>
         </div>
-        <div id="header-progress-container">
-            <div class="progress-container"><div class="progress-bar" id="context-progress"></div></div>
-            <div class="progress-text" id="context-progress-text">Progreso: 0%</div>
-        </div>
+        <nav>
+            <div class="nav-tab active" onclick="navTo('general')">
+                <svg viewBox="0 0 24 24"><path d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0A2.25 2.25 0 001.5 12v4.5c0 1.243 1.007 2.25 2.25 2.25h16.5A2.25 2.25 0 0022.5 16.5V12a2.25 2.25 0 00-2.25-2.224m-16.5 0V6c0-1.243 1.007-2.25 2.25-2.25h16.5A2.25 2.25 0 0022.5 6v3.776M10.5 15h3"></path></svg>
+                <span>General</span>
+            </div>
+            <div class="nav-tab" onclick="navTo('especifico')">
+                <svg viewBox="0 0 24 24"><path d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"></path></svg>
+                <span>Específico</span>
+            </div>
+            <div class="nav-tab" onclick="navTo('destacado')">
+                <svg viewBox="0 0 24 24"><path d="M11.412 15.655L9.75 21.75l3.745-4.012M9.257 13.5H3.75l2.659-2.849m2.048-2.194L14.25 2.25 12 10.5h8.25l-4.707 5.043M8.457 8.457L3 3m5.457 5.457l7.086 7.086m0 0L21 21"></path></svg>
+                <span>Destacado</span>
+            </div>
+            <div class="nav-tab" onclick="navTo('estadisticas')">
+                <svg viewBox="0 0 24 24"><path d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"></path></svg>
+                <span>Estadísticas</span>
+            </div>
+            <div class="nav-tab" onclick="navTo('varios')">
+                <svg viewBox="0 0 24 24"><path d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13"></path></svg>
+                <span>Varios</span>
+            </div>
+            <div class="nav-tab" onclick="navTo('ajustes')">
+                <svg viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                <span>Ajustes</span>
+            </div>
+        </nav>
     </header>
 
-    <div class="drawer-overlay" id="overlay" onclick="toggleMenu()"></div>
-    <nav class="drawer" id="drawer">
-        <h2 style="margin-bottom: 1.5rem; color: var(--primary); padding-left: 0.5rem;">Luís A. Núñez</h2>
-        
-        <div class="nav-item" onclick="showSection('home'); toggleMenu()">
-            <svg viewBox="0 0 24 24"><path d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"></path></svg> Inicio
-        </div>
+    <main>
+        <section id="general" class="section active">
+            <h2 style="margin-bottom: 1rem;">Temario General</h2>
+            <div id="tree-general"></div>
+        </section>
 
-        <div id="dynamic-menu"></div>
+        <section id="especifico" class="section">
+            <h2 style="margin-bottom: 1rem;">Temario Específico</h2>
+            <div id="tree-especifico"></div>
+        </section>
 
-        <div class="nav-item" onclick="showSection('highlights'); toggleMenu()" style="margin-top: 1rem;">
-            <svg viewBox="0 0 24 24"><path d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"></path></svg> Repaso / Destacados
-        </div>
-        <div class="nav-item" onclick="showSection('config'); toggleMenu()">
-            <svg viewBox="0 0 24 24"><path d="M4.5 12a7.5 7.5 0 0015 0m-15 0a7.5 7.5 0 1115 0m-15 0H3m16.5 0h1.5m-9-9V3m0 18v-1.5m-6.75-13.5L5.25 5.25m13.5 13.5l-1.05-1.05m-12.45 0l1.05-1.05m13.5-13.5l-1.05 1.05"></path></svg> Configuración
-        </div>
-    </nav>
+        <section id="destacado" class="section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h2>Textos Destacados</h2>
+                <button class="btn" onclick="clearHighlights()" style="color: var(--danger); border-color: var(--danger);">Limpiar</button>
+            </div>
+            <div id="hl-list"></div>
+        </section>
 
-    <main id="app-main">
-        <section id="home" class="section active">
+        <section id="estadisticas" class="section">
+            <h2 style="margin-bottom: 1rem;">Progreso por Materias</h2>
             <div class="card">
-                <div id="countdown" style="font-size: 1.5rem; text-align: center; color: var(--primary); font-weight: bold;"></div>
-                <p style="text-align: center; color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem;">C2-01 Generalitat Valenciana</p>
+                <h3>General</h3>
+                <div class="prog-container" style="height: 8px; margin: 0.5rem 0;"><div class="prog-bar" id="stat-gen-bar"></div></div>
+                <p id="stat-gen-txt" style="font-size: 0.8rem; color: var(--text-muted); text-align: right;">0%</p>
             </div>
             <div class="card">
-                <h3>Resumen de Progreso</h3>
-                <div class="progress-container" style="height: 10px; margin-top: 1rem;"><div class="progress-bar" id="global-progress"></div></div>
-                <div class="progress-text" id="global-progress-text" style="font-size: 1rem; margin-top: 0.5rem;">0%</div>
+                <h3>Específico</h3>
+                <div class="prog-container" style="height: 8px; margin: 0.5rem 0;"><div class="prog-bar" id="stat-esp-bar"></div></div>
+                <p id="stat-esp-txt" style="font-size: 0.8rem; color: var(--text-muted); text-align: right;">0%</p>
+            </div>
+        </section>
+
+        <section id="varios" class="section">
+            <h2 style="margin-bottom: 1rem;">Convocatoria e Información</h2>
+            <div class="card">
+                <a href="convocatoria.pdf" target="_blank" style="text-decoration: none; color: var(--primary); font-weight: 500; display: flex; align-items: center; gap: 8px;">
+                    <svg viewBox="0 0 24 24" style="width:20px; height:20px; stroke:currentColor; fill:none;"><path stroke-width="1.5" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"></path></svg>
+                    Ver PDF Convocatoria (70/26)
+                </a>
+            </div>
+        </section>
+
+        <section id="ajustes" class="section">
+            <h2 style="margin-bottom: 1rem;">Ajustes de la App</h2>
+            
+            <div class="card">
+                <h3>Modo Oscuro</h3>
+                <button class="btn" onclick="toggleTheme()" style="margin-top: 0.5rem;">Alternar Día/Noche</button>
+            </div>
+
+            <div class="card">
+                <h3>Sincronizar Temario (GitHub)</h3>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Crea la estructura de subcarpetas leyendo los HTML de tu repositorio público.</p>
+                <input type="text" id="gh-user" placeholder="Usuario de GitHub">
+                <input type="text" id="gh-repo" placeholder="Nombre del repositorio">
+                <button class="btn btn-primary" onclick="syncRepo()" id="btn-sync">Escanear y Generar</button>
+            </div>
+
+            <div class="card">
+                <h3>Datos Locales</h3>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn" onclick="exportBackup()">Backup (.json)</button>
+                    <label class="btn">Restore <input type="file" hidden onchange="importBackup(event)"></label>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Actualizaciones (OTA)</h3>
+                <button class="btn" onclick="window.location.reload(true)">Recargar App</button>
             </div>
         </section>
 
         <section id="reader" class="section">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; gap: 1rem; flex-wrap: wrap;">
-                <h2 id="reader-title" style="flex-grow: 1; margin-top: 0;">Cargando...</h2>
-                <div style="display: flex; align-items: center; background: var(--surface); padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid var(--border);">
-                    <label style="font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                        <input type="checkbox" id="mark-completed" onchange="toggleTopicCompletion()" style="width: 18px; height: 18px; accent-color: var(--primary);"> 
-                        Marcar como completado
-                    </label>
+            <button class="btn" onclick="navTo(lastTab)" style="margin-bottom: 1rem;">← Volver</button>
+            <div class="reader-controls">
+                <div style="flex:1;">
+                    <h3 id="reader-title" style="font-size: 1.1rem;">Tema</h3>
+                    <div class="prog-container" style="height: 4px; margin-top: 4px;"><div class="prog-bar" id="reader-scroll-bar"></div></div>
                 </div>
+                <label style="display: flex; align-items: center; gap: 8px; margin-left: 1rem; cursor: pointer; font-size: 0.9rem;">
+                    <input type="checkbox" id="reader-check" onchange="toggleTopicCheck()" style="width: 18px; height: 18px; accent-color: var(--success);"> Completado
+                </label>
             </div>
-            <div id="reader-content"></div>
-        </section>
-
-        <section id="highlights" class="section">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                <h2>Notas y Destacados</h2>
-                <button class="btn" onclick="clearHighlights()" style="color: #ef4444; border-color: #fecaca; padding: 0.5rem 1rem;">Borrar todo</button>
-            </div>
-            <div id="highlights-list"></div>
-        </section>
-
-        <section id="config" class="section">
-            <h2 style="margin-bottom: 1.5rem;">Configuración</h2>
-            
-            <div class="card">
-                <h3>Sincronizar Temario Automáticamente</h3>
-                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">
-                    Escaneará tu repositorio en GitHub para buscar nuevos temas en .html y actualizará el menú sin necesidad de editar código.
-                </p>
-                <div style="display: flex; gap: 10px; margin-bottom: 1rem; flex-wrap: wrap;">
-                    <input type="text" id="gh-user" placeholder="Tu usuario (ej. LuisANunez)" style="padding: 0.75rem; border: 1px solid var(--border); border-radius: 6px; flex-grow: 1;">
-                    <input type="text" id="gh-repo" placeholder="Repositorio (ej. cedos)" style="padding: 0.75rem; border: 1px solid var(--border); border-radius: 6px; flex-grow: 1;">
-                </div>
-                <button class="btn btn-primary" onclick="syncTemarioFromGitHub()" id="btn-sync">
-                    <svg viewBox="0 0 24 24"><path d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"></path></svg>
-                    Escanear y Actualizar Menú
-                </button>
-            </div>
-
-            <div class="card">
-                <h3>Datos y Respaldo</h3>
-                <p style="margin-bottom: 1rem; font-size: 0.9rem; color: var(--text-muted);">Descarga tu progreso y tus notas subrayadas.</p>
-                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                    <button class="btn" onclick="exportData()">
-                        <svg viewBox="0 0 24 24"><path d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"></path></svg> Backup (.json)
-                    </button>
-                    <label class="btn">
-                        <svg viewBox="0 0 24 24"><path d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"></path></svg> Restore
-                        <input type="file" id="restore-input" hidden onchange="importData(event)">
-                    </label>
-                </div>
-            </div>
-
-            <div class="card">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <h3>Actualizaciones (OTA)</h3>
-                        <p style="color: var(--text-muted); font-size: 0.9rem;">Fuerza la recarga de la app saltando la caché.</p>
-                    </div>
-                    <button class="btn" onclick="window.location.reload(true);">Recargar</button>
-                </div>
-            </div>
+            <div id="reader-content" onscroll="calcScroll()"></div>
         </section>
     </main>
 
     <script>
-        // --- ESTADO INICIAL ---
-        // Carga la estructura del temario desde localStorage si existe, si no, usa un esqueleto básico.
-        let dbTemario = JSON.parse(localStorage.getItem('cedos_dbTemario')) || {
-            "Instrucciones": {
-                "Primeros pasos": ["1. Ve a Configuración.html", "2. Escanea tu repositorio.html"]
-            }
-        };
-
-        let currentActiveTopicPath = null;
+        // --- ESTADO Y DATOS ---
+        const EXAM_DATE = new Date('2026-11-28T00:00:00');
+        const START_DATE = new Date('2026-01-01T00:00:00'); // Origen visual de la barra
+        
+        let dbTree = JSON.parse(localStorage.getItem('cedos_tree')) || { General: {}, Especifico: {} };
+        let lastTab = 'general';
+        let currentTopic = null;
+        let selectedTextTemp = "";
 
         // Inicialización
         document.addEventListener('DOMContentLoaded', () => {
-            setupCountdown();
-            generateMenu();
-            updateProgress();
+            initTimeBar();
+            applyTheme();
+            renderTrees();
+            updateStats();
             
-            // Rellenar configuración de GitHub guardada
             if(localStorage.getItem('gh_user')) document.getElementById('gh-user').value = localStorage.getItem('gh_user');
             if(localStorage.getItem('gh_repo')) document.getElementById('gh-repo').value = localStorage.getItem('gh_repo');
         });
 
-        // --- ESCÁNER GITHUB API ---
-        async function syncTemarioFromGitHub() {
-            const user = document.getElementById('gh-user').value.trim();
-            const repo = document.getElementById('gh-repo').value.trim();
-            
-            if(!user || !repo) {
-                alert('Por favor, introduce tu usuario y el nombre del repositorio.');
-                return;
-            }
-
-            localStorage.setItem('gh_user', user);
-            localStorage.setItem('gh_repo', repo);
-
-            const btn = document.getElementById('btn-sync');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = 'Conectando con GitHub...';
-            btn.disabled = true;
-
-            try {
-                // 1. Obtener la rama por defecto
-                const repoInfo = await fetch(`https://api.github.com/repos/${user}/${repo}`).then(r => r.json());
-                if(repoInfo.message) throw new Error(repoInfo.message);
-                const branch = repoInfo.default_branch || 'main';
-
-                // 2. Obtener el árbol completo
-                const treeUrl = `https://api.github.com/repos/${user}/${repo}/git/trees/${branch}?recursive=1`;
-                const treeData = await fetch(treeUrl).then(r => r.json());
-
-                // 3. Filtrar archivos HTML en la carpeta "Temario"
-                const htmlFiles = treeData.tree.filter(item => item.path.startsWith('Temario/') && item.path.endsWith('.html'));
+        // --- BARRA DE TIEMPO INVERTIDA ---
+        function initTimeBar() {
+            const updateTime = () => {
+                const now = new Date();
+                const totalDays = (EXAM_DATE - START_DATE) / (1000 * 60 * 60 * 24);
+                const daysLeft = Math.ceil((EXAM_DATE - now) / (1000 * 60 * 60 * 24));
                 
-                if(htmlFiles.length === 0) {
-                    throw new Error("No se han encontrado archivos .html en la carpeta 'Temario/'.");
-                }
-
-                // 4. Reconstruir la base de datos de estructura
-                const newDb = {};
-                htmlFiles.forEach(file => {
-                    const parts = file.path.split('/'); 
-                    if(parts.length >= 4) {
-                        const parte = parts[1];        
-                        const subcarpeta = parts[2];   
-                        const archivo = parts[parts.length - 1]; 
-
-                        if(!newDb[parte]) newDb[parte] = {};
-                        if(!newDb[parte][subcarpeta]) newDb[parte][subcarpeta] = [];
-                        newDb[parte][subcarpeta].push(archivo);
-                    }
-                });
-
-                // 5. Guardar y refrescar
-                dbTemario = newDb;
-                localStorage.setItem('cedos_dbTemario', JSON.stringify(newDb));
-                generateMenu();
-                updateProgress();
+                document.getElementById('time-text').innerText = `${Math.max(0, daysLeft)} días hasta el 28N`;
                 
-                alert('¡Menú actualizado correctamente con la estructura de GitHub!');
-            } catch (error) {
-                alert('Error al sincronizar: ' + error.message + '\n\nVerifica que el repositorio sea público y exista la carpeta "Temario".');
-            } finally {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }
+                // Vaciado hacia la derecha = la barra se ancla a la derecha y su width se reduce.
+                let pct = (daysLeft / totalDays) * 100;
+                if(pct < 0) pct = 0; if(pct > 100) pct = 100;
+                document.getElementById('time-bar').style.width = `${pct}%`;
+            };
+            updateTime();
+            setInterval(updateTime, 3600000); // 1 hora
         }
 
-        // --- RENDERIZADO DEL MENÚ ---
-        function generateMenu() {
-            const menuContainer = document.getElementById('dynamic-menu');
-            let html = '';
+        // --- NAVEGACIÓN ---
+        function navTo(tabId) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            
+            // Buscar la pestaña correspondiente y activarla
+            const tabElements = document.querySelectorAll('.nav-tab');
+            for(let el of tabElements) {
+                if(el.getAttribute('onclick').includes(tabId)) {
+                    el.classList.add('active');
+                    break;
+                }
+            }
+            if(tabId !== 'reader') lastTab = tabId;
+            if(tabId === 'destacado') renderHighlights();
+            if(tabId === 'estadisticas') updateStats();
+            window.scrollTo(0, 0);
+        }
 
-            for (const [parte, subcarpetas] of Object.entries(dbTemario)) {
-                html += `
-                    <div class="nav-item" onclick="toggleFolderGroup('${parte.replace(/[^a-zA-Z0-9]/g, '')}')">
-                        <svg viewBox="0 0 24 24"><path d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"></path></svg>
-                        ${parte}
-                    </div>
-                    <div id="${parte.replace(/[^a-zA-Z0-9]/g, '')}" class="folder-group">
-                `;
+        // --- TEMA (DÍA/NOCHE) ---
+        function applyTheme() {
+            const t = localStorage.getItem('cedos_theme') || 'light';
+            document.documentElement.setAttribute('data-theme', t);
+        }
+        function toggleTheme() {
+            const curr = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', curr);
+            localStorage.setItem('cedos_theme', curr);
+        }
 
-                for (const [subcarpeta, archivos] of Object.entries(subcarpetas)) {
-                    const subId = subcarpeta.replace(/[^a-zA-Z0-9]/g, '');
+        // --- GITHUB API SCANNERS ---
+        async function syncRepo() {
+            const user = document.getElementById('gh-user').value.trim();
+            const repo = document.getElementById('gh-repo').value.trim();
+            if(!user || !repo) return alert('Faltan datos.');
+            
+            localStorage.setItem('gh_user', user);
+            localStorage.setItem('gh_repo', repo);
+            const btn = document.getElementById('btn-sync');
+            btn.innerText = 'Escaneando...'; btn.disabled = true;
+
+            try {
+                const bInfo = await fetch(`https://api.github.com/repos/${user}/${repo}`).then(r=>r.json());
+                const treeUrl = `https://api.github.com/repos/${user}/${repo}/git/trees/${bInfo.default_branch}?recursive=1`;
+                const data = await fetch(treeUrl).then(r=>r.json());
+                
+                const newTree = { General: {}, Especifico: {} };
+                data.tree.forEach(f => {
+                    if(f.path.endsWith('.html')) {
+                        const pts = f.path.split('/');
+                        // Estructura esperada: General/Subcarpeta/Tema.html o Especifico/...
+                        if(pts[0] === 'General' || pts[0] === 'Específico' || pts[0] === 'Especifico') {
+                            const root = pts[0] === 'General' ? 'General' : 'Especifico';
+                            const sub = pts.length > 2 ? pts[1] : 'Raíz';
+                            const file = pts[pts.length - 1];
+                            if(!newTree[root][sub]) newTree[root][sub] = [];
+                            newTree[root][sub].push({ path: f.path, name: file });
+                        }
+                    }
+                });
+                
+                dbTree = newTree;
+                localStorage.setItem('cedos_tree', JSON.stringify(newTree));
+                renderTrees();
+                updateStats();
+                alert('Estructura generada con éxito.');
+            } catch(e) { alert('Error: ' + e.message); }
+            btn.innerText = 'Escanear y Generar'; btn.disabled = false;
+        }
+
+        // --- RENDERIZADO DE CARPETAS ---
+        function renderTrees() {
+            const buildHtml = (rootData) => {
+                let html = '';
+                for(let [sub, files] of Object.entries(rootData)) {
+                    // Calc folder progress
+                    let folderTotal = files.length;
+                    let folderDone = files.filter(f => localStorage.getItem(`c_${f.path}`) === 'true').length;
+                    let fPct = folderTotal ? (folderDone/folderTotal)*100 : 0;
+                    
                     html += `
-                        <div class="folder-title" onclick="toggleFolderGroup('${subId}')">
-                            ${subcarpeta} <svg viewBox="0 0 24 24" style="width:16px;height:16px;"><path d="M19.5 8.25l-7.5 7.5-7.5-7.5"></path></svg>
-                        </div>
-                        <div id="${subId}" class="folder-group" style="margin-left: 0.5rem;">
+                        <div class="folder" onclick="this.classList.toggle('open')">
+                            <div class="folder-header">
+                                <div style="flex:1;">
+                                    ${sub}
+                                    <div class="prog-container" style="height:2px; margin-top:4px;"><div class="folder-prog" style="width:${fPct}%"></div></div>
+                                </div>
+                                <svg viewBox="0 0 24 24" style="width:16px; height:16px; margin-left:10px; stroke:currentColor; fill:none;"><path stroke-width="2" d="M19.5 8.25l-7.5 7.5-7.5-7.5"></path></svg>
+                            </div>
+                            <div class="folder-content" onclick="event.stopPropagation()">
                     `;
-                    archivos.forEach(archivo => {
-                        const path = `Temario/${parte}/${subcarpeta}/${archivo}`;
+                    files.forEach(f => {
+                        let isDone = localStorage.getItem(`c_${f.path}`) === 'true';
+                        let prog = localStorage.getItem(`p_${f.path}`) || 0;
                         html += `
-                            <div class="file-item" onclick="loadTopic('${path}', '${archivo}')">
-                                <svg viewBox="0 0 24 24" style="width:14px;height:14px; stroke: var(--primary);"><path d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"></path></svg>
-                                ${archivo.replace('.html', '')}
+                            <div class="file-item" onclick="loadTopic('${f.path}', '${f.name}')">
+                                <div class="file-title">
+                                    <input type="checkbox" ${isDone ? 'checked' : ''} onclick="event.stopPropagation(); toggleListCheck('${f.path}', this)"> 
+                                    ${f.name.replace('.html', '')}
+                                </div>
+                                <div class="prog-container" style="height:2px;"><div class="prog-bar" style="width:${isDone ? 100 : prog}%; background: ${isDone ? 'var(--success)' : 'var(--primary)'}"></div></div>
                             </div>
                         `;
                     });
-                    html += `</div>`;
+                    html += `</div></div>`;
                 }
-                html += `</div>`;
-            }
-            menuContainer.innerHTML = html;
+                return html || '<p style="color:var(--text-muted); font-size:0.9rem;">Sin contenido. Escanea el repositorio en Ajustes.</p>';
+            };
+
+            document.getElementById('tree-general').innerHTML = buildHtml(dbTree.General);
+            document.getElementById('tree-especifico').innerHTML = buildHtml(dbTree.Especifico);
         }
 
-        function toggleFolderGroup(id) {
-            const group = document.getElementById(id);
-            if (group) group.classList.toggle('open');
+        function toggleListCheck(path, cb) {
+            localStorage.setItem(`c_${path}`, cb.checked);
+            renderTrees(); updateStats();
         }
 
-        // --- CARGA DEL TEMA (FETCH HTML) ---
-        async function loadTopic(path, title) {
-            showSection('reader');
-            toggleMenu();
-            document.getElementById('reader-title').innerText = title.replace('.html', '');
-            document.getElementById('reader-content').innerHTML = '<p style="color: var(--text-muted); text-align: center; margin-top: 2rem;">Descargando contenido...</p>';
+        // --- LECTOR Y PROGRESO ---
+        async function loadTopic(path, name) {
+            navTo('reader');
+            currentTopic = { path, name: name.replace('.html', '') };
+            document.getElementById('reader-title').innerText = currentTopic.name;
+            document.getElementById('reader-check').checked = localStorage.getItem(`c_${path}`) === 'true';
+            document.getElementById('reader-scroll-bar').style.width = (localStorage.getItem(`p_${path}`) || 0) + '%';
             
-            currentActiveTopicPath = path;
-            document.getElementById('mark-completed').checked = localStorage.getItem(`completed_${path}`) === 'true';
-
+            const cont = document.getElementById('reader-content');
+            cont.innerHTML = '<p>Cargando tema...</p>';
+            
             try {
-                // Parámetro de tiempo para evitar caché de versiones antiguas al actualizar un tema
-                const cacheBuster = `?t=${new Date().getTime()}`;
-                const response = await fetch(path + cacheBuster);
-                
-                if (!response.ok) throw new Error('Archivo no encontrado en el servidor');
-                
-                const text = await response.text();
-                document.getElementById('reader-content').innerHTML = text;
-                
-                // Desplazar vista al inicio
-                window.scrollTo(0, 0);
-            } catch (error) {
-                document.getElementById('reader-content').innerHTML = `
-                    <div style="padding: 2rem; text-align: center; background: #fee2e2; border-radius: 8px; color: #991b1b; border: 1px solid #fca5a5;">
-                        <p><strong>⚠️ No se pudo cargar el archivo.</strong></p>
-                        <p style="font-size: 0.9rem; margin-top: 1rem;">La app intentó buscar la ruta:</p>
-                        <code style="display: block; margin: 0.5rem 0; padding: 0.5rem; background: #fff; border-radius: 4px;">${path}</code>
-                        <p style="font-size: 0.8rem; margin-top: 1rem;">Comprueba que el archivo exacto está subido al repositorio y vuelve a hacer clic.</p>
-                    </div>
-                `;
+                // Añadimos cache buster local
+                const res = await fetch(path + '?t=' + Date.now());
+                if(!res.ok) throw new Error();
+                cont.innerHTML = await res.text();
+            } catch {
+                cont.innerHTML = `<p style="color:var(--danger)">No se pudo cargar el archivo: <b>${path}</b></p>`;
             }
         }
 
-        // --- PROGRESO ---
-        function toggleTopicCompletion() {
-            if (!currentActiveTopicPath) return;
-            const isCompleted = document.getElementById('mark-completed').checked;
-            localStorage.setItem(`completed_${currentActiveTopicPath}`, isCompleted);
-            updateProgress();
+        function toggleTopicCheck() {
+            if(!currentTopic) return;
+            const isC = document.getElementById('reader-check').checked;
+            localStorage.setItem(`c_${currentTopic.path}`, isC);
+            if(isC) localStorage.setItem(`p_${currentTopic.path}`, 100);
+            document.getElementById('reader-scroll-bar').style.width = isC ? '100%' : (localStorage.getItem(`p_${currentTopic.path}`)||0) + '%';
+            renderTrees(); updateStats();
         }
 
-        function updateProgress() {
-            let total = 0, checked = 0;
-            
-            for (const parte of Object.values(dbTemario)) {
-                for (const archivos of Object.values(parte)) {
-                    total += archivos.length;
+        // Track scroll progress on the window (since the content pushes the body down)
+        window.addEventListener('scroll', () => {
+            if(document.getElementById('reader').classList.contains('active') && currentTopic) {
+                const docEl = document.documentElement;
+                const totalScroll = docEl.scrollHeight - docEl.clientHeight;
+                let pct = 0;
+                if(totalScroll > 0) pct = Math.round((window.scrollY / totalScroll) * 100);
+                if(pct > 98) pct = 100;
+                
+                // Solo guardar si es mayor que el progreso anterior y no está marcado manual
+                if(localStorage.getItem(`c_${currentTopic.path}`) !== 'true') {
+                    let oldP = parseInt(localStorage.getItem(`p_${currentTopic.path}`) || 0);
+                    if(pct > oldP) {
+                        localStorage.setItem(`p_${currentTopic.path}`, pct);
+                        document.getElementById('reader-scroll-bar').style.width = pct + '%';
+                    }
                 }
-            }
-
-            for(let i = 0; i < localStorage.length; i++) {
-                if(localStorage.key(i).startsWith('completed_') && localStorage.getItem(localStorage.key(i)) === 'true') {
-                    // Solo contamos si la ruta completada sigue existiendo en el dbTemario actual
-                    checked++;
-                }
-            }
-
-            const pct = total === 0 ? 0 : Math.round((checked / total) * 100);
-            document.getElementById('global-progress').style.width = `${pct}%`;
-            document.getElementById('global-progress-text').innerText = `${pct}% completado (${checked}/${total})`;
-            document.getElementById('context-progress').style.width = `${pct}%`;
-            document.getElementById('context-progress-text').innerText = `Global: ${pct}%`;
-        }
-
-        // --- DESTACADOS ---
-        let lastSelectedText = "";
-
-        document.addEventListener('mouseup', (e) => {
-            const selection = window.getSelection();
-            const text = selection.toString().trim();
-            if (text.length > 5 && document.getElementById('reader').classList.contains('active')) {
-                lastSelectedText = text;
-                const bubble = document.getElementById('highlight-bubble');
-                bubble.style.display = 'block';
-                // Posicionar cerca del toque/clic
-                bubble.style.left = `${e.pageX - 50}px`;
-                bubble.style.top = `${e.pageY - 50}px`;
-            } else {
-                document.getElementById('highlight-bubble').style.display = 'none';
             }
         });
 
-        function saveSelectedText() {
-            let highlights = JSON.parse(localStorage.getItem('cedos_highlights') || '[]');
-            const topicName = document.getElementById('reader-title').innerText;
-            highlights.push({ text: lastSelectedText, origin: topicName, date: new Date().toLocaleDateString() });
-            localStorage.setItem('cedos_highlights', JSON.stringify(highlights));
-            
-            document.getElementById('highlight-bubble').style.display = 'none';
+        // --- DESTACADOS CON COMENTARIOS ---
+        document.addEventListener('mouseup', (e) => {
+            if(!document.getElementById('reader').classList.contains('active')) return;
+            const sel = window.getSelection().toString().trim();
+            const bubble = document.getElementById('hl-bubble');
+            if(sel.length > 5) {
+                selectedTextTemp = sel;
+                bubble.style.display = 'block';
+                bubble.style.left = `${e.pageX - 70}px`;
+                bubble.style.top = `${e.pageY - 40}px`;
+            } else {
+                bubble.style.display = 'none';
+            }
+        });
+
+        function addHighlight() {
+            document.getElementById('hl-bubble').style.display = 'none';
+            const comment = prompt("Añadir comentario (opcional):");
+            if(comment === null) return; // Cancelado
+
+            let hls = JSON.parse(localStorage.getItem('cedos_hls')) || [];
+            hls.push({
+                text: selectedTextTemp,
+                comment: comment,
+                origin: currentTopic.name,
+                date: new Date().toLocaleDateString()
+            });
+            localStorage.setItem('cedos_hls', JSON.stringify(hls));
             window.getSelection().removeAllRanges();
-            
-            // Si la vista de destacados está abierta, actualizarla
-            if (document.getElementById('highlights').classList.contains('active')) renderHighlights();
+            alert("Guardado en Destacados.");
         }
 
         function renderHighlights() {
-            const list = document.getElementById('highlights-list');
-            const data = JSON.parse(localStorage.getItem('cedos_highlights') || '[]');
-            if (data.length === 0) {
-                list.innerHTML = `<p style="text-align:center;color:var(--text-muted);padding:2rem; background: var(--surface); border-radius: 8px;">Aún no has destacado ningún texto.</p>`;
-                return;
-            }
-            list.innerHTML = data.reverse().map(h => `
-                <div class="h-item">
-                    <p style="font-size: 0.95rem;">"${h.text}"</p>
-                    <div class="h-origin">En: <strong>${h.origin}</strong> • ${h.date}</div>
+            const list = document.getElementById('hl-list');
+            const hls = JSON.parse(localStorage.getItem('cedos_hls')) || [];
+            if(!hls.length) { list.innerHTML = '<p class="text-muted">No hay destacados.</p>'; return; }
+            
+            list.innerHTML = hls.reverse().map(h => `
+                <div class="hl-card">
+                    <p><i>"${h.text}"</i></p>
+                    ${h.comment ? `<div class="hl-comment"><b>Nota:</b> ${h.comment}</div>` : ''}
+                    <div class="hl-meta">Tema: ${h.origin} • ${h.date}</div>
                 </div>
             `).join('');
         }
 
         function clearHighlights() {
-            if(confirm("¿Estás seguro de querer borrar todos los textos destacados? Esta acción no se puede deshacer.")) {
-                localStorage.removeItem('cedos_highlights');
-                renderHighlights();
+            if(confirm("¿Borrar todos los destacados?")) {
+                localStorage.removeItem('cedos_hls'); renderHighlights();
             }
         }
 
+        // --- ESTADÍSTICAS GLOBALES ---
+        function updateStats() {
+            const calcGroup = (group) => {
+                let total = 0, done = 0;
+                for(let sub in group) {
+                    group[sub].forEach(f => {
+                        total++;
+                        if(localStorage.getItem(`c_${f.path}`) === 'true') done++;
+                    });
+                }
+                return total ? Math.round((done/total)*100) : 0;
+            };
+            
+            const pGen = calcGroup(dbTree.General);
+            const pEsp = calcGroup(dbTree.Especifico);
+            
+            document.getElementById('stat-gen-bar').style.width = pGen + '%';
+            document.getElementById('stat-gen-txt').innerText = pGen + '% completado';
+            
+            document.getElementById('stat-esp-bar').style.width = pEsp + '%';
+            document.getElementById('stat-esp-txt').innerText = pEsp + '% completado';
+        }
+
         // --- BACKUP / RESTORE ---
-        function exportData() {
-            const data = JSON.stringify(localStorage);
-            const blob = new Blob([data], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
+        function exportBackup() {
+            const blob = new Blob([JSON.stringify(localStorage)], {type: 'application/json'});
             const a = document.createElement('a');
-            a.href = url;
-            a.download = `cedos_backup_${new Date().toISOString().split('T')[0]}.json`;
+            a.href = URL.createObjectURL(blob);
+            a.download = `cedos_backup_${Date.now()}.json`;
             a.click();
         }
-
-        function importData(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
+        function importBackup(e) {
+            const fr = new FileReader();
+            fr.onload = (ev) => {
                 try {
-                    const data = JSON.parse(e.target.result);
-                    Object.keys(data).forEach(k => localStorage.setItem(k, data[k]));
-                    alert("Datos restaurados correctamente. La app se recargará.");
-                    window.location.reload();
-                } catch (err) { 
-                    alert("Error al leer el archivo de respaldo."); 
-                }
+                    const data = JSON.parse(ev.target.result);
+                    for(let k in data) localStorage.setItem(k, data[k]);
+                    alert('Restaurado. Recargando...'); window.location.reload();
+                } catch { alert('Error al leer el archivo.'); }
             };
-            reader.readAsText(file);
-        }
-
-        // --- UI & NAVEGACIÓN ---
-        function showSection(id) {
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            if(id === 'highlights') renderHighlights();
-            window.scrollTo(0, 0);
-        }
-
-        function toggleMenu() {
-            document.getElementById('drawer').classList.toggle('open');
-            document.getElementById('overlay').classList.toggle('open');
-        }
-
-        function setupCountdown() {
-            const targetDate = new Date('2026-11-28T00:00:00');
-            const updateTime = () => {
-                const diff = targetDate - new Date();
-                if (diff <= 0) {
-                    document.getElementById('countdown').innerText = "¡Llegó el día del examen!";
-                    return;
-                }
-                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                document.getElementById('countdown').innerText = `Faltan ${days} días`;
-            };
-            updateTime();
-            setInterval(updateTime, 86400000); // 1 día en milisegundos
+            if(e.target.files[0]) fr.readAsText(e.target.files[0]);
         }
     </script>
 </body>
