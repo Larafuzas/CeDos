@@ -85,9 +85,9 @@
         
         #reader-content img, #reader-content pre { max-width: 100%; overflow-x: auto; display: block; }
         
-        /* Estilos específicos para que las tablas no se estrujen y tengan scroll */
+        /* Estilos específicos para tablas ajustadas */
         .table-responsive-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 1.5rem 0; border: 1px solid var(--border); border-radius: 8px; }
-        #reader-content table { min-width: max-content; width: 100%; border-collapse: collapse; }
+        #reader-content table { min-width: 400px; width: 100%; border-collapse: collapse; }
         #reader-content th, #reader-content td { border: 1px solid var(--border); padding: 10px 14px; text-align: left; }
         #reader-content th { background: var(--bg-base); font-weight: 600; }
 
@@ -217,15 +217,30 @@
             <h2 style="margin-bottom: 1rem;">Ajustes de la App</h2>
             
             <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3>CeDos - Actualizaciones</h3>
+                    <span style="background: var(--primary-light); color: var(--primary); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">v1.4.0</span>
+                </div>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; margin-top: 0.5rem;">Fuerza la recarga de la app para descargar la última versión del código base.</p>
+                <button class="btn" onclick="window.location.reload(true)" style="width: 100%; justify-content: center;">
+                    <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;"><path stroke-width="1.5" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"></path></svg>
+                    Recargar App
+                </button>
+            </div>
+            
+            <div class="card">
                 <h3>Modo Oscuro</h3>
-                <button class="btn" onclick="toggleTheme()" style="margin-top: 0.5rem;">Alternar Día/Noche</button>
+                <button class="btn" onclick="toggleTheme()" style="margin-top: 0.5rem; width: 100%; justify-content: center;">
+                    <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;"><path stroke-width="1.5" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"></path></svg>
+                    Alternar Día/Noche
+                </button>
             </div>
 
             <div class="card">
                 <h3>Sincronizar Temario</h3>
                 <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Actualiza la estructura de carpetas automáticamente desde el repositorio.</p>
-                <button class="btn btn-primary" onclick="syncRepo()" id="btn-sync">
-                    <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;"><path stroke-width="1.5" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"></path></svg>
+                <button class="btn btn-primary" onclick="syncRepo()" id="btn-sync" style="width: 100%; justify-content: center;">
+                    <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;"><path stroke-width="1.5" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"></path></svg>
                     Escanear y Generar
                 </button>
             </div>
@@ -233,23 +248,15 @@
             <div class="card">
                 <h3>Datos Locales</h3>
                 <div style="display: flex; gap: 10px; margin-top: 0.5rem;">
-                    <button class="btn" onclick="exportBackup()">
+                    <button class="btn" onclick="exportBackup()" style="flex:1; justify-content: center;">
                         <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;"><path stroke-width="1.5" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"></path></svg>
                         Backup (.json)
                     </button>
-                    <label class="btn">
+                    <label class="btn" style="flex:1; justify-content: center; cursor: pointer;">
                         <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;"><path stroke-width="1.5" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"></path></svg>
                         Restore <input type="file" hidden onchange="importBackup(event)">
                     </label>
                 </div>
-            </div>
-
-            <div class="card">
-                <h3>Actualizaciones (OTA)</h3>
-                <button class="btn" onclick="window.location.reload(true)" style="margin-top: 0.5rem;">
-                    <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;"><path stroke-width="1.5" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"></path></svg>
-                    Recargar App
-                </button>
             </div>
         </section>
 
@@ -282,7 +289,6 @@
         const GITHUB_USER = 'Larafuzas';
         const GITHUB_REPO = 'CeDos';
         const EXAM_DATE = new Date('2026-11-28T00:00:00');
-        const START_DATE = new Date('2026-01-01T00:00:00'); 
         
         let dbTree = JSON.parse(localStorage.getItem('cedos_tree')) || { General: {}, Especifico: {}, Varios: [] };
         if(!dbTree.Varios) dbTree.Varios = [];
@@ -299,11 +305,11 @@
             updateStats();
         });
 
-        // --- BARRA DE TIEMPO INVERTIDA ---
+        // --- BARRA DE TIEMPO INVERTIDA (Basada en 200 días) ---
         function initTimeBar() {
             const updateTime = () => {
                 const now = new Date();
-                const totalDays = (EXAM_DATE - START_DATE) / (1000 * 60 * 60 * 24);
+                const totalDays = 200; // Total de días de estudio fijo solicitado
                 const daysLeft = Math.ceil((EXAM_DATE - now) / (1000 * 60 * 60 * 24));
                 
                 document.getElementById('time-text').innerText = `${Math.max(0, daysLeft)} días hasta el 28N`;
