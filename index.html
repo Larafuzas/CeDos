@@ -73,7 +73,6 @@
         
         #reader-content { background: var(--bg-surface); padding: 1.5rem; border-radius: 8px; font-size: 1.05rem; word-wrap: break-word; overflow-wrap: break-word; word-break: break-word; max-width: 100%; overflow-x: hidden; }
         #reader-content img, #reader-content pre { max-width: 100%; overflow-x: auto; display: block; }
-        
         .table-responsive-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 1.5rem 0; border: 1px solid var(--border); border-radius: 8px; }
         #reader-content table { min-width: 650px; width: 100%; border-collapse: collapse; }
         #reader-content th, #reader-content td { border: 1px solid var(--border); padding: 10px 14px; text-align: left; }
@@ -83,17 +82,20 @@
         #reader-content p, #reader-content ul { margin-bottom: 1rem; }
 
         /* ESTILOS DE SUBRAYADO Y TACHADO DENTRO DEL TEXTO */
-        .mark-hl { background-color: var(--highlight); color: #000; border-radius: 3px; padding: 0 2px; }
+        .mark-hl { background-color: var(--highlight); color: #000; border-radius: 3px; padding: 0 2px; transition: background 0.3s; }
         .mark-strike { text-decoration: line-through; text-decoration-color: var(--danger); text-decoration-thickness: 2px; color: var(--text-muted); background-color: rgba(239, 68, 68, 0.1); padding: 0 2px; border-radius: 3px; }
         
-        /* BURBUJA DE ACCIONES (Desplazada abajo) */
+        /* BURBUJA DE ACCIONES */
         #hl-bubble { position: absolute; display: none; background: #1e293b; padding: 6px; border-radius: 8px; z-index: 9999; box-shadow: 0 4px 12px rgba(0,0,0,0.3); transition: opacity 0.2s; white-space: nowrap; }
         .hl-toolbar { display: flex; gap: 4px; }
         .hl-action-btn { display: flex; align-items: center; gap: 6px; background: transparent; border: none; color: #f8fafc; cursor: pointer; font-size: 0.8rem; padding: 6px 10px; border-radius: 6px; transition: background 0.2s; }
         .hl-action-btn:hover { background: #334155; }
 
-        /* LISTA DESTACADOS */
-        .hl-card { background: var(--bg-surface); border-left: 3px solid var(--border); padding: 1rem; margin-bottom: 1rem; border-radius: 0 8px 8px 0; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        /* SECCIÓN DESTACADOS */
+        .hl-filters { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 1.5rem; background: var(--bg-surface); padding: 1rem; border-radius: 8px; border: 1px solid var(--border); }
+        .hl-filters select { flex: 1; min-width: 150px; padding: 0.6rem; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-base); color: var(--text-main); }
+        
+        .hl-card { background: var(--bg-surface); border-left: 4px solid var(--border); padding: 1rem; margin-bottom: 1rem; border-radius: 0 8px 8px 0; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
         .hl-card.type-hl { border-left-color: var(--highlight); }
         .hl-card.type-comment { border-left-color: var(--primary); }
         .hl-card.type-strike { border-left-color: var(--danger); }
@@ -101,12 +103,28 @@
         .hl-meta { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.75rem; display: flex; justify-content: space-between; align-items: center; }
         .hl-badge { padding: 2px 6px; border-radius: 4px; font-weight: 600; font-size: 0.65rem; text-transform: uppercase; }
         
+        .hl-actions { display: flex; gap: 8px; margin-top: 10px; border-top: 1px dashed var(--border); padding-top: 10px; }
+        .hl-icon-btn { background: none; border: none; cursor: pointer; color: var(--text-muted); display: flex; align-items: center; gap: 4px; font-size: 0.75rem; padding: 4px; border-radius: 4px; }
+        .hl-icon-btn:hover { background: var(--bg-base); color: var(--text-main); }
+        .hl-icon-btn.goto { color: var(--primary); }
+
         /* COMPONENTES GENERALES */
         .btn { display: inline-flex; align-items: center; gap: 8px; padding: 0.75rem 1rem; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; color: var(--text-main); cursor: pointer; font-size: 0.9rem; }
         .btn-primary { background: var(--primary); color: white; border: none; }
         .card { background: var(--bg-surface); padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid var(--border); }
         img { max-width: 100%; height: auto; border-radius: 8px; }
         svg { stroke-linecap: round; stroke-linejoin: round; }
+
+        /* ESTILOS DE IMPRESIÓN PARA EXPORTAR A PDF */
+        @media print {
+            header, nav, .reader-controls, #hl-bubble, .btn:not(.print-only), .hl-filters, .hl-actions { display: none !important; }
+            body { background: white !important; color: black !important; margin: 0; padding: 0; }
+            main { max-width: 100%; padding: 0; }
+            .section { display: none !important; }
+            #destacado { display: block !important; }
+            .hl-card { break-inside: avoid; border: 1px solid #ccc; box-shadow: none; margin-bottom: 1rem; page-break-inside: avoid; }
+            #destacado h2 { margin-top: 0; }
+        }
     </style>
 </head>
 <body>
@@ -133,14 +151,10 @@
             <svg viewBox="0 0 24 24"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
             CeDos
         </div>
-
         <div class="time-header">
             <div class="time-text" id="time-text">0 días hasta el 28N</div>
-            <div class="time-bar-container">
-                <div class="time-bar" id="time-bar"></div>
-            </div>
+            <div class="time-bar-container"><div class="time-bar" id="time-bar"></div></div>
         </div>
-
         <nav>
             <div class="nav-tab active" onclick="navTo('general')">
                 <svg viewBox="0 0 24 24"><path d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0A2.25 2.25 0 001.5 12v4.5c0 1.243 1.007 2.25 2.25 2.25h16.5A2.25 2.25 0 0022.5 16.5V12a2.25 2.25 0 00-2.25-2.224m-16.5 0V6c0-1.243 1.007-2.25 2.25-2.25h16.5A2.25 2.25 0 0022.5 6v3.776M10.5 15h3"></path></svg>
@@ -181,10 +195,29 @@
         </section>
 
         <section id="destacado" class="section">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                <h2>Anotaciones</h2>
-                <button class="btn" onclick="clearHighlights()" style="color: var(--danger); border-color: var(--danger); padding: 0.4rem 0.8rem; font-size: 0.8rem;">Borrar todo</button>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 10px;">
+                <h2 style="margin: 0;">Tus Notas</h2>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn" onclick="exportPDF()" style="color: var(--primary); border-color: var(--primary); padding: 0.4rem 0.8rem; font-size: 0.8rem;">
+                        <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;"><path d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"></path></svg>
+                        PDF
+                    </button>
+                    <button class="btn" onclick="clearHighlights()" style="color: var(--danger); border-color: var(--danger); padding: 0.4rem 0.8rem; font-size: 0.8rem;">Borrar todo</button>
+                </div>
             </div>
+
+            <div class="hl-filters">
+                <select id="filter-type" onchange="renderHighlights()">
+                    <option value="all">Todos los tipos</option>
+                    <option value="hl">Solo Destacados</option>
+                    <option value="comment">Solo Comentarios</option>
+                    <option value="strike">Solo Correcciones</option>
+                </select>
+                <select id="filter-topic" onchange="renderHighlights()">
+                    <option value="all">Todos los temas</option>
+                    </select>
+            </div>
+
             <div id="hl-list"></div>
         </section>
 
@@ -232,7 +265,7 @@
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <h3>CeDos - Actualizaciones</h3>
-                    <span style="background: var(--primary-light); color: var(--primary); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">v1.5.0</span>
+                    <span style="background: var(--primary-light); color: var(--primary); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">v1.6.0</span>
                 </div>
                 <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; margin-top: 0.5rem;">Fuerza la recarga de la app para descargar la última versión del código base.</p>
                 <button class="btn" onclick="window.location.reload(true)" style="width: 100%; justify-content: center;">
@@ -309,6 +342,7 @@
         let lastTab = 'general';
         let currentTopic = null;
         let selectedTextTemp = "";
+        let jumpToHlId = null; // Almacena el ID del texto destacado al que queremos navegar
 
         // Inicialización
         document.addEventListener('DOMContentLoaded', () => {
@@ -318,13 +352,12 @@
             updateStats();
         });
 
-        // --- BARRA DE TIEMPO INVERTIDA (Basada en 200 días) ---
+        // --- BARRA DE TIEMPO INVERTIDA ---
         function initTimeBar() {
             const updateTime = () => {
                 const now = new Date();
                 const totalDays = 200; 
                 const daysLeft = Math.ceil((EXAM_DATE - now) / (1000 * 60 * 60 * 24));
-                
                 document.getElementById('time-text').innerText = `${Math.max(0, daysLeft)} días hasta el 28N`;
                 
                 let pct = (daysLeft / totalDays) * 100;
@@ -350,12 +383,11 @@
                 }
             }
             if(tabId !== 'reader') lastTab = tabId;
-            if(tabId === 'destacado') renderHighlights();
+            if(tabId === 'destacado') populateTopicFilterAndRender();
             if(tabId === 'estadisticas') updateStats();
             window.scrollTo(0, 0);
         }
 
-        // --- TEMA (DÍA/NOCHE) ---
         function applyTheme() {
             const t = localStorage.getItem('cedos_theme') || 'light';
             document.documentElement.setAttribute('data-theme', t);
@@ -370,8 +402,7 @@
         async function syncRepo() {
             const btn = document.getElementById('btn-sync');
             const originalContent = btn.innerHTML;
-            btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;"><path stroke-width="1.5" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"></path></svg> Escaneando...'; 
-            btn.disabled = true;
+            btn.innerHTML = 'Escaneando...'; btn.disabled = true;
 
             try {
                 const bInfo = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}`).then(r=>r.json());
@@ -385,13 +416,11 @@
                 data.tree.forEach(f => {
                     if(f.path.endsWith('.html')) {
                         const pts = f.path.split('/');
-                        
                         if(pts[0] === 'Temario' && pts.length >= 3) {
                             const rootRaw = pts[1].normalize("NFD").replace(/[\u0300-\u036f]/g, ""); 
                             if(rootRaw === 'General' || rootRaw === 'Especifico') {
                                 const sub = pts.length > 3 ? pts[2] : 'General';
                                 const file = pts[pts.length - 1];
-                                
                                 if(!newTree[rootRaw][sub]) newTree[rootRaw][sub] = [];
                                 newTree[rootRaw][sub].push({ path: f.path, name: file });
                             }
@@ -408,9 +437,7 @@
                 renderTrees();
                 updateStats();
                 alert('Estructura generada con éxito.');
-            } catch(e) { 
-                alert('Error al escanear: ' + e.message); 
-            }
+            } catch(e) { alert('Error al escanear: ' + e.message); }
             btn.innerHTML = originalContent; 
             btn.disabled = false;
         }
@@ -481,7 +508,7 @@
                     </div>
                 </div>
             `).join('');
-            document.getElementById('tree-varios').innerHTML = variosHtml || '<p style="color:var(--text-muted); font-size:0.85rem;">No hay archivos HTML adicionales en la carpeta Varios.</p>';
+            document.getElementById('tree-varios').innerHTML = variosHtml || '<p style="color:var(--text-muted); font-size:0.85rem;">No hay archivos.</p>';
         }
 
         function toggleListCheck(path, cb) {
@@ -506,7 +533,6 @@
                 if(!res.ok) throw new Error();
                 cont.innerHTML = await res.text();
                 
-                // Forzar scroll horizontal en tablas
                 cont.querySelectorAll('table').forEach(tbl => {
                     if(!tbl.parentElement.classList.contains('table-responsive-wrapper')) {
                         const wrapper = document.createElement('div');
@@ -516,45 +542,56 @@
                     }
                 });
 
-                // Restaurar Anotaciones Visuales en el DOM
+                // Restaurar Anotaciones Visuales
                 restoreVisualHighlights();
                 
-                // MARCADOR DE POSICIÓN
+                // MARCADOR DE POSICIÓN / SALTO DIRECTO A ANOTACIÓN
                 setTimeout(() => {
-                    const pct = parseInt(localStorage.getItem(`p_${path}`) || 0);
-                    const isDone = localStorage.getItem(`c_${path}`) === 'true';
-                    
-                    if(pct > 0 && pct < 100 && !isDone) {
-                        cont.style.position = 'relative';
-                        const contentHeight = cont.scrollHeight;
-                        const topPos = (pct / 100) * contentHeight;
+                    // Si venimos de un link directo de destacado
+                    if(jumpToHlId) {
+                        const targetEl = document.getElementById('hl-' + jumpToHlId);
+                        if(targetEl) {
+                            // Flash temporal
+                            const originalBg = targetEl.style.backgroundColor;
+                            targetEl.style.backgroundColor = '#fca5a5';
+                            targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            setTimeout(() => { targetEl.style.backgroundColor = originalBg; }, 1500);
+                        }
+                        jumpToHlId = null; // reset
+                    } 
+                    // Si es carga normal, mostramos el marcador de progreso
+                    else {
+                        const pct = parseInt(localStorage.getItem(`p_${path}`) || 0);
+                        const isDone = localStorage.getItem(`c_${path}`) === 'true';
                         
-                        const marker = document.createElement('div');
-                        marker.id = 'bookmark-marker';
-                        marker.innerHTML = `
-                            <div style="display:inline-flex; align-items:center; gap:4px; background:var(--primary); color:white; padding:2px 8px; border-radius:12px; font-size:0.75rem; box-shadow:0 2px 4px rgba(0,0,0,0.1); transform: translateY(-100%); margin-top: -2px;">
-                                <svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;"><path stroke-width="2" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-width="2" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"></path></svg>
-                                Última lectura
-                            </div>
-                        `;
-                        marker.style.position = 'absolute';
-                        marker.style.top = topPos + 'px';
-                        marker.style.left = '0';
-                        marker.style.width = '100%';
-                        marker.style.borderTop = '2px dashed var(--primary)';
-                        marker.style.zIndex = '10';
-                        
-                        cont.appendChild(marker);
-                        document.getElementById('bookmark-btn').style.display = 'inline-flex';
+                        if(pct > 0 && pct < 100 && !isDone) {
+                            cont.style.position = 'relative';
+                            const contentHeight = cont.scrollHeight;
+                            const topPos = (pct / 100) * contentHeight;
+                            
+                            const marker = document.createElement('div');
+                            marker.id = 'bookmark-marker';
+                            marker.innerHTML = `
+                                <div style="display:inline-flex; align-items:center; gap:4px; background:var(--primary); color:white; padding:2px 8px; border-radius:12px; font-size:0.75rem; box-shadow:0 2px 4px rgba(0,0,0,0.1); transform: translateY(-100%); margin-top: -2px;">
+                                    <svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;"><path stroke-width="2" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-width="2" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"></path></svg>
+                                    Última lectura
+                                </div>
+                            `;
+                            marker.style.position = 'absolute';
+                            marker.style.top = topPos + 'px';
+                            marker.style.left = '0';
+                            marker.style.width = '100%';
+                            marker.style.borderTop = '2px dashed var(--primary)';
+                            marker.style.zIndex = '10';
+                            
+                            cont.appendChild(marker);
+                            document.getElementById('bookmark-btn').style.display = 'inline-flex';
+                        }
                     }
                 }, 400); 
                 
             } catch {
-                cont.innerHTML = `
-                    <div style="color:var(--danger); border:1px solid var(--danger); padding:1rem; border-radius:8px;">
-                        <svg viewBox="0 0 24 24" style="width:24px;height:24px;stroke:currentColor;fill:none;margin-bottom:0.5rem;"><path stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                        <p>No se pudo cargar el archivo: <b>${path}</b></p>
-                    </div>`;
+                cont.innerHTML = `<p style="color:var(--danger)">No se pudo cargar el archivo: <b>${path}</b></p>`;
             }
         }
 
@@ -583,11 +620,9 @@
         });
 
         // --- SISTEMA DE ANOTACIONES, DESTACADOS Y CORRECCIONES ---
-        
         function handleSelection(e) {
             if(!document.getElementById('reader').classList.contains('active')) return;
             
-            // Retardo para dejar que el sistema operativo complete la selección táctil
             setTimeout(() => {
                 const selection = window.getSelection();
                 const selText = selection.toString().trim();
@@ -599,10 +634,9 @@
                     const rect = range.getBoundingClientRect();
                     
                     bubble.style.display = 'block';
-                    // Calcular posición inferior a la selección para evitar el menú nativo Copiar/Pegar
                     const bubbleWidth = bubble.offsetWidth || 280;
                     let leftPos = rect.left + (rect.width / 2) - (bubbleWidth / 2);
-                    if (leftPos < 10) leftPos = 10; // Evitar salir de pantalla
+                    if (leftPos < 10) leftPos = 10; 
                     
                     bubble.style.left = `${leftPos}px`;
                     bubble.style.top = `${rect.bottom + window.scrollY + 10}px`;
@@ -624,35 +658,35 @@
         function saveAnnotation(type) {
             document.getElementById('hl-bubble').style.display = 'none';
             
-            // Si no es un comentario simple, pedir nota de texto
             let comment = null;
             if (type === 'comment') {
                 comment = prompt("Escribe tu comentario sobre este fragmento:");
+                if(comment === null) return;
+            } else if (type === 'strike') {
+                comment = prompt("Motivo de la corrección:");
                 if(comment === null) return;
             } else {
                 comment = prompt("Añadir nota adicional (opcional):");
             }
 
             let hls = JSON.parse(localStorage.getItem('cedos_hls')) || [];
+            const newId = Date.now().toString();
             hls.push({
+                id: newId,
                 text: selectedTextTemp,
                 comment: comment,
-                type: type, // 'hl', 'comment', 'strike'
+                type: type, 
                 origin: currentTopic.name,
+                path: currentTopic.path, // Fundamental para volver
                 date: new Date().toLocaleDateString()
             });
             localStorage.setItem('cedos_hls', JSON.stringify(hls));
             
-            // Aplicar visualmente en el momento si corresponde
-            if (type !== 'comment') {
-                restoreVisualHighlights();
-            }
-            
+            if (type !== 'comment') restoreVisualHighlights();
             window.getSelection().removeAllRanges();
             alert("Anotación guardada en Destacados.");
         }
 
-        // Restaura las marcas visuales en el texto HTML al cargar el tema
         function restoreVisualHighlights() {
             if (!currentTopic) return;
             const hls = JSON.parse(localStorage.getItem('cedos_hls')) || [];
@@ -672,27 +706,56 @@
                 const spanClass = hl.type === 'hl' ? 'mark-hl' : 'mark-strike';
                 
                 nodesToProcess.forEach(n => {
-                    // Evitar procesar nodos que ya están dentro de una marca nuestra
                     if (n.nodeValue && n.nodeValue.includes(searchStr) && 
                         n.parentElement.className !== 'mark-hl' && 
                         n.parentElement.className !== 'mark-strike') {
                         
-                        // Escapar texto para regex
                         const escapedStr = searchStr.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
                         const regex = new RegExp(`(${escapedStr})`, 'g');
                         
                         const wrapper = document.createElement('span');
-                        wrapper.innerHTML = n.nodeValue.replace(regex, `<span class="${spanClass}">$1</span>`);
+                        wrapper.innerHTML = n.nodeValue.replace(regex, `<span id="hl-${hl.id}" class="${spanClass}">$1</span>`);
                         n.parentNode.replaceChild(wrapper, n);
                     }
                 });
             });
         }
 
+        // --- GESTIÓN DE DESTACADOS Y FILTROS ---
+        function populateTopicFilterAndRender() {
+            const hls = JSON.parse(localStorage.getItem('cedos_hls')) || [];
+            const topicSelect = document.getElementById('filter-topic');
+            const currentSelection = topicSelect.value;
+            
+            // Obtener temas únicos
+            const uniqueTopics = [...new Set(hls.map(h => h.origin))].sort();
+            
+            let optionsHtml = '<option value="all">Todos los temas</option>';
+            uniqueTopics.forEach(t => {
+                optionsHtml += `<option value="${t}">${t}</option>`;
+            });
+            topicSelect.innerHTML = optionsHtml;
+            
+            // Mantener selección si existe
+            if(uniqueTopics.includes(currentSelection)) {
+                topicSelect.value = currentSelection;
+            }
+            
+            renderHighlights();
+        }
+
         function renderHighlights() {
             const list = document.getElementById('hl-list');
-            const hls = JSON.parse(localStorage.getItem('cedos_hls')) || [];
-            if(!hls.length) { list.innerHTML = '<p class="text-muted">No hay anotaciones.</p>'; return; }
+            let hls = JSON.parse(localStorage.getItem('cedos_hls')) || [];
+            
+            const fType = document.getElementById('filter-type').value;
+            const fTopic = document.getElementById('filter-topic').value;
+            
+            // Aplicar filtros
+            if(fType !== 'all') hls = hls.filter(h => h.type === fType);
+            if(fTopic !== 'all') hls = hls.filter(h => h.origin === fTopic);
+
+            if(!hls.length) { list.innerHTML = '<p class="text-muted">No hay anotaciones con estos filtros.</p>'; return; }
             
             list.innerHTML = hls.reverse().map(h => {
                 let badge = '';
@@ -707,19 +770,66 @@
                         <p style="${h.type === 'strike' ? 'text-decoration: line-through; color: var(--text-muted);' : ''}">
                             <i>"${h.text}"</i>
                         </p>
-                        ${h.comment ? `<div class="hl-comment"><b>Nota:</b> ${h.comment}</div>` : ''}
+                        ${h.comment ? `<div class="hl-comment"><b>Nota:</b> <span id="txt-comment-${h.id}">${h.comment}</span></div>` : ''}
+                        
                         <div class="hl-meta"><span>Tema: ${h.origin}</span> <span>${h.date}</span></div>
+                        
+                        <div class="hl-actions">
+                            ${h.path ? `<button class="hl-icon-btn goto" onclick="goToHighlight('${h.path}', '${h.origin}', '${h.id}')" title="Ir al texto">
+                                <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;"><path d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"></path></svg> Ir al texto
+                            </button>` : ''}
+                            
+                            <button class="hl-icon-btn" onclick="editHighlight('${h.id}')" title="Editar comentario">
+                                <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;"><path d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125"></path></svg> Editar
+                            </button>
+                            
+                            <button class="hl-icon-btn" onclick="deleteHighlight('${h.id}')" title="Borrar anotación" style="color:var(--danger); margin-left:auto;">
+                                <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;"><path d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"></path></svg> Borrar
+                            </button>
+                        </div>
                     </div>
                 `;
             }).join('');
         }
 
-        function clearHighlights() {
-            if(confirm("¿Borrar TODAS las anotaciones (destacados, comentarios y correcciones)?")) {
-                localStorage.removeItem('cedos_hls'); 
-                renderHighlights();
-                if(currentTopic) loadTopic(currentTopic.path, currentTopic.name); // Recargar texto limpio
+        function deleteHighlight(id) {
+            if(confirm("¿Borrar esta anotación?")) {
+                let hls = JSON.parse(localStorage.getItem('cedos_hls')) || [];
+                hls = hls.filter(h => h.id !== id);
+                localStorage.setItem('cedos_hls', JSON.stringify(hls));
+                populateTopicFilterAndRender();
             }
+        }
+
+        function editHighlight(id) {
+            let hls = JSON.parse(localStorage.getItem('cedos_hls')) || [];
+            const index = hls.findIndex(h => h.id === id);
+            if(index > -1) {
+                const newComment = prompt("Edita tu comentario:", hls[index].comment || "");
+                if(newComment !== null) {
+                    hls[index].comment = newComment;
+                    localStorage.setItem('cedos_hls', JSON.stringify(hls));
+                    renderHighlights();
+                }
+            }
+        }
+
+        function goToHighlight(path, name, id) {
+            jumpToHlId = id; // Guardamos la id globalmente para que loadTopic la recoja
+            loadTopic(path, name);
+        }
+
+        function clearHighlights() {
+            if(confirm("¿Borrar TODAS las anotaciones? Esta acción no se puede deshacer.")) {
+                localStorage.removeItem('cedos_hls'); 
+                populateTopicFilterAndRender();
+                if(currentTopic) loadTopic(currentTopic.path, currentTopic.name); 
+            }
+        }
+
+        // Exportar a PDF (Llama a la impresión nativa preparada con CSS)
+        function exportPDF() {
+            window.print();
         }
 
         // --- ESTADÍSTICAS GLOBALES ---
