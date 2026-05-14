@@ -2,8 +2,18 @@
 <html lang="es" data-theme="light">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CeDos - C2-01 GVA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CeDos</title>
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="CeDos">
+    <meta name="application-name" content="CeDos">
+    <meta name="theme-color" content="#ffffff">
+
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='512' height='512'%3E%3Cpath d='M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253' fill='none' stroke='%233b82f6' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='512' height='512'%3E%3Crect width='24' height='24' fill='%23ffffff'/%3E%3Cpath d='M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253' fill='none' stroke='%233b82f6' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
     <style>
         /* Variables de Tema */
         :root {
@@ -16,7 +26,7 @@
             --border: #334155; --primary: #60a5fa; --primary-light: #1e3a8a; --highlight: #854d0e;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent;}
         body { background: var(--bg-base); color: var(--text-main); line-height: 1.6; transition: background 0.3s, color 0.3s; padding-bottom: 80px; }
 
         /* HEADER, TÍTULO & CUENTA ATRÁS */
@@ -215,7 +225,7 @@
                 </select>
                 <select id="filter-topic" onchange="renderHighlights()">
                     <option value="all">Todos los temas</option>
-                    </select>
+                </select>
             </div>
 
             <div id="hl-list"></div>
@@ -265,9 +275,9 @@
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <h3>CeDos - Actualizaciones</h3>
-                    <span style="background: var(--primary-light); color: var(--primary); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">v1.6.0</span>
+                    <span style="background: var(--primary-light); color: var(--primary); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">v1.6.1</span>
                 </div>
-                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; margin-top: 0.5rem;">Fuerza la recarga de la app para descargar la última versión del código base.</p>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; margin-top: 0.5rem;">Fuerza la recarga para aplicar actualizaciones del código base.</p>
                 <button class="btn" onclick="window.location.reload(true)" style="width: 100%; justify-content: center;">
                     <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;"><path stroke-width="1.5" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"></path></svg>
                     Recargar App
@@ -284,7 +294,7 @@
 
             <div class="card">
                 <h3>Sincronizar Temario</h3>
-                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Actualiza la estructura de carpetas automáticamente desde el repositorio.</p>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Actualiza la estructura de carpetas desde GitHub.</p>
                 <button class="btn btn-primary" onclick="syncRepo()" id="btn-sync" style="width: 100%; justify-content: center;">
                     <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;"><path stroke-width="1.5" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"></path></svg>
                     Escanear y Generar
@@ -331,7 +341,7 @@
     </main>
 
     <script>
-        // --- CONFIGURACIÓN DE REPOSITORIO Y FECHAS (Credenciales ocultas) ---
+        // --- CONFIGURACIÓN DE REPOSITORIO Y FECHAS ---
         const GITHUB_USER = 'Larafuzas';
         const GITHUB_REPO = 'CeDos';
         const EXAM_DATE = new Date('2026-11-28T00:00:00');
@@ -342,7 +352,7 @@
         let lastTab = 'general';
         let currentTopic = null;
         let selectedTextTemp = "";
-        let jumpToHlId = null; // Almacena el ID del texto destacado al que queremos navegar
+        let jumpToHlId = null; 
 
         // Inicialización
         document.addEventListener('DOMContentLoaded', () => {
@@ -352,7 +362,6 @@
             updateStats();
         });
 
-        // --- BARRA DE TIEMPO INVERTIDA ---
         function initTimeBar() {
             const updateTime = () => {
                 const now = new Date();
@@ -368,7 +377,6 @@
             setInterval(updateTime, 3600000); 
         }
 
-        // --- NAVEGACIÓN ---
         function navTo(tabId) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
@@ -391,14 +399,20 @@
         function applyTheme() {
             const t = localStorage.getItem('cedos_theme') || 'light';
             document.documentElement.setAttribute('data-theme', t);
+            
+            // Actualizar color de la barra de estado móvil nativa
+            const metaTheme = document.querySelector("meta[name=theme-color]");
+            if(metaTheme) metaTheme.setAttribute("content", t === 'dark' ? '#1e293b' : '#ffffff');
         }
         function toggleTheme() {
             const curr = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
             document.documentElement.setAttribute('data-theme', curr);
             localStorage.setItem('cedos_theme', curr);
+            
+            const metaTheme = document.querySelector("meta[name=theme-color]");
+            if(metaTheme) metaTheme.setAttribute("content", curr === 'dark' ? '#1e293b' : '#ffffff');
         }
 
-        // --- GITHUB API SCANNERS ---
         async function syncRepo() {
             const btn = document.getElementById('btn-sync');
             const originalContent = btn.innerHTML;
@@ -442,7 +456,6 @@
             btn.disabled = false;
         }
 
-        // --- RESET PROGRESO ---
         function resetProgress(path) {
             if(confirm("¿Deseas resetear el progreso de este tema a 0%?")) {
                 localStorage.removeItem(`c_${path}`);
@@ -452,7 +465,6 @@
             }
         }
 
-        // --- RENDERIZADO DE CARPETAS ---
         function renderTrees() {
             const buildHtml = (rootData) => {
                 let html = '';
@@ -517,7 +529,6 @@
             renderTrees(); updateStats();
         }
 
-        // --- LECTOR Y PROGRESO ---
         async function loadTopic(path, name) {
             navTo('reader');
             currentTopic = { path, name: name.replace('.html', '') };
@@ -542,24 +553,19 @@
                     }
                 });
 
-                // Restaurar Anotaciones Visuales
                 restoreVisualHighlights();
                 
-                // MARCADOR DE POSICIÓN / SALTO DIRECTO A ANOTACIÓN
                 setTimeout(() => {
-                    // Si venimos de un link directo de destacado
                     if(jumpToHlId) {
                         const targetEl = document.getElementById('hl-' + jumpToHlId);
                         if(targetEl) {
-                            // Flash temporal
                             const originalBg = targetEl.style.backgroundColor;
                             targetEl.style.backgroundColor = '#fca5a5';
                             targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
                             setTimeout(() => { targetEl.style.backgroundColor = originalBg; }, 1500);
                         }
-                        jumpToHlId = null; // reset
+                        jumpToHlId = null; 
                     } 
-                    // Si es carga normal, mostramos el marcador de progreso
                     else {
                         const pct = parseInt(localStorage.getItem(`p_${path}`) || 0);
                         const isDone = localStorage.getItem(`c_${path}`) === 'true';
@@ -619,7 +625,7 @@
             }
         });
 
-        // --- SISTEMA DE ANOTACIONES, DESTACADOS Y CORRECCIONES ---
+        // --- SISTEMA DE ANOTACIONES ---
         function handleSelection(e) {
             if(!document.getElementById('reader').classList.contains('active')) return;
             
@@ -677,14 +683,14 @@
                 comment: comment,
                 type: type, 
                 origin: currentTopic.name,
-                path: currentTopic.path, // Fundamental para volver
+                path: currentTopic.path, 
                 date: new Date().toLocaleDateString()
             });
             localStorage.setItem('cedos_hls', JSON.stringify(hls));
             
             if (type !== 'comment') restoreVisualHighlights();
             window.getSelection().removeAllRanges();
-            alert("Anotación guardada en Destacados.");
+            alert("Anotación guardada.");
         }
 
         function restoreVisualHighlights() {
@@ -721,13 +727,11 @@
             });
         }
 
-        // --- GESTIÓN DE DESTACADOS Y FILTROS ---
         function populateTopicFilterAndRender() {
             const hls = JSON.parse(localStorage.getItem('cedos_hls')) || [];
             const topicSelect = document.getElementById('filter-topic');
             const currentSelection = topicSelect.value;
             
-            // Obtener temas únicos
             const uniqueTopics = [...new Set(hls.map(h => h.origin))].sort();
             
             let optionsHtml = '<option value="all">Todos los temas</option>';
@@ -736,7 +740,6 @@
             });
             topicSelect.innerHTML = optionsHtml;
             
-            // Mantener selección si existe
             if(uniqueTopics.includes(currentSelection)) {
                 topicSelect.value = currentSelection;
             }
@@ -751,7 +754,6 @@
             const fType = document.getElementById('filter-type').value;
             const fTopic = document.getElementById('filter-topic').value;
             
-            // Aplicar filtros
             if(fType !== 'all') hls = hls.filter(h => h.type === fType);
             if(fTopic !== 'all') hls = hls.filter(h => h.origin === fTopic);
 
@@ -815,7 +817,7 @@
         }
 
         function goToHighlight(path, name, id) {
-            jumpToHlId = id; // Guardamos la id globalmente para que loadTopic la recoja
+            jumpToHlId = id; 
             loadTopic(path, name);
         }
 
@@ -827,12 +829,10 @@
             }
         }
 
-        // Exportar a PDF (Llama a la impresión nativa preparada con CSS)
         function exportPDF() {
             window.print();
         }
 
-        // --- ESTADÍSTICAS GLOBALES ---
         function updateStats() {
             const calcGroup = (group) => {
                 let total = 0, done = 0;
@@ -855,7 +855,6 @@
             document.getElementById('stat-esp-txt').innerText = pEsp + '% completado';
         }
 
-        // --- BACKUP / RESTORE ---
         function exportBackup() {
             const blob = new Blob([JSON.stringify(localStorage)], {type: 'application/json'});
             const a = document.createElement('a');
