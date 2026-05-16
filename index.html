@@ -82,7 +82,8 @@
         .reader-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; background: var(--bg-surface); padding: 1rem; border-radius: 8px; border: 1px solid var(--border); position: sticky; top: 110px; z-index: 40; }
         
         #reader-content { background: var(--bg-surface); padding: 1.5rem; border-radius: 8px; font-size: 1.05rem; word-wrap: break-word; overflow-wrap: break-word; word-break: break-word; max-width: 100%; overflow-x: hidden; }
-        #reader-content img, #reader-content pre { max-width: 100%; overflow-x: auto; display: block; }
+        #reader-content img { max-width: 100%; height: auto; border-radius: 6px; cursor: zoom-in; }
+        #reader-content pre { max-width: 100%; overflow-x: auto; display: block; }
         .table-responsive-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 1.5rem 0; border: 1px solid var(--border); border-radius: 8px; }
         #reader-content table { min-width: 650px; width: 100%; border-collapse: collapse; }
         #reader-content th, #reader-content td { border: 1px solid var(--border); padding: 10px 14px; text-align: left; }
@@ -122,7 +123,7 @@
         .btn { display: inline-flex; align-items: center; gap: 8px; padding: 0.75rem 1rem; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; color: var(--text-main); cursor: pointer; font-size: 0.9rem; }
         .btn-primary { background: var(--primary); color: white; border: none; }
         .card { background: var(--bg-surface); padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid var(--border); }
-        img { max-width: 100%; height: auto; border-radius: 8px; cursor: zoom-in; }
+        img { max-width: 100%; height: auto; border-radius: 8px; }
         svg { stroke-linecap: round; stroke-linejoin: round; }
 
         /* VISOR DE IMÁGENES AMPLIADAS (MODAL) */
@@ -273,12 +274,7 @@
 
             <div class="card">
                 <h3>Estructura del Temario</h3>
-                <img src="temario.png" alt="Mapa del Temario" style="margin-top: 0.5rem; border: 1px solid var(--border);" onclick="openImageModal(this.src)">
-                
-                <button class="btn" style="margin-top: 1rem; width: 100%; justify-content: center; color: var(--primary); border-color: var(--primary);" onclick="loadTopic('temario.html', 'Temario Detallado')">
-                    <svg viewBox="0 0 24 24" style="width:16px; height:16px; stroke:currentColor; fill:none;"><path d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"></path></svg>
-                    Leer Temario Detallado
-                </button>
+                <img src="temario.png" alt="Mapa del Temario" style="margin-top: 0.5rem; border: 1px solid var(--border); cursor: zoom-in;" onclick="openImageModal(this.src)">
             </div>
 
             <div class="card">
@@ -293,7 +289,7 @@
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <h3>CeDos - Actualizaciones</h3>
-                    <span style="background: var(--primary-light); color: var(--primary); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">v1.7.0</span>
+                    <span style="background: var(--primary-light); color: var(--primary); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">v1.8.0</span>
                 </div>
                 <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; margin-top: 0.5rem;">Fuerza la recarga para aplicar actualizaciones del código base.</p>
                 <button class="btn" onclick="window.location.reload(true)" style="width: 100%; justify-content: center;">
@@ -426,15 +422,14 @@
         function applyTheme() {
             const t = localStorage.getItem('cedos_theme') || 'light';
             document.documentElement.setAttribute('data-theme', t);
-            
             const metaTheme = document.querySelector("meta[name=theme-color]");
             if(metaTheme) metaTheme.setAttribute("content", t === 'dark' ? '#1e293b' : '#ffffff');
         }
+
         function toggleTheme() {
             const curr = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
             document.documentElement.setAttribute('data-theme', curr);
             localStorage.setItem('cedos_theme', curr);
-            
             const metaTheme = document.querySelector("meta[name=theme-color]");
             if(metaTheme) metaTheme.setAttribute("content", curr === 'dark' ? '#1e293b' : '#ffffff');
         }
@@ -442,7 +437,8 @@
         async function syncRepo() {
             const btn = document.getElementById('btn-sync');
             const originalContent = btn.innerHTML;
-            btn.innerHTML = 'Escaneando...'; btn.disabled = true;
+            btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;"><path stroke-width="1.5" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"></path></svg> Escaneando...'; 
+            btn.disabled = true;
 
             try {
                 const bInfo = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}`).then(r=>r.json());
@@ -458,11 +454,13 @@
                         const pts = f.path.split('/');
                         if(pts[0] === 'Temario' && pts.length >= 3) {
                             const rootRaw = pts[1].normalize("NFD").replace(/[\u0300-\u036f]/g, ""); 
-                            if(rootRaw === 'General' || rootRaw === 'Especifico') {
+                            if(rootRaw === 'General' || rootRaw === 'Especial') {
+                                const treeKey = rootRaw === 'General' ? 'General' : 'Especifico';
                                 const sub = pts.length > 3 ? pts[2] : 'General';
                                 const file = pts[pts.length - 1];
-                                if(!newTree[rootRaw][sub]) newTree[rootRaw][sub] = [];
-                                newTree[rootRaw][sub].push({ path: f.path, name: file });
+                                
+                                if(!newTree[treeKey][sub]) newTree[treeKey][sub] = [];
+                                newTree[treeKey][sub].push({ path: f.path, name: file });
                             }
                         } 
                         else if (pts[0] === 'Varios' && pts.length >= 2) {
@@ -546,7 +544,7 @@
                     </div>
                 </div>
             `).join('');
-            document.getElementById('tree-varios').innerHTML = variosHtml || '<p style="color:var(--text-muted); font-size:0.85rem;">No hay archivos.</p>';
+            document.getElementById('tree-varios').innerHTML = variosHtml || '<p style="color:var(--text-muted); font-size:0.85rem;">No hay archivos HTML adicionales en la carpeta Varios.</p>';
         }
 
         function toggleListCheck(path, cb) {
@@ -579,9 +577,9 @@
                     }
                 });
                 
-                // Hacer las imágenes del lector ampliables
                 cont.querySelectorAll('img').forEach(img => {
                     img.onclick = () => openImageModal(img.src);
+                    img.style.cursor = 'zoom-in';
                 });
 
                 restoreVisualHighlights();
