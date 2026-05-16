@@ -2,7 +2,7 @@
 <html lang="es" data-theme="light">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" id="viewport-meta" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CeDos</title>
 
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -123,14 +123,14 @@
         .btn { display: inline-flex; align-items: center; gap: 8px; padding: 0.75rem 1rem; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; color: var(--text-main); cursor: pointer; font-size: 0.9rem; }
         .btn-primary { background: var(--primary); color: white; border: none; }
         .card { background: var(--bg-surface); padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid var(--border); }
-        img { max-width: 100%; height: auto; border-radius: 8px; }
+        img { max-width: 100%; height: auto; border-radius: 8px; cursor: zoom-in; }
         svg { stroke-linecap: round; stroke-linejoin: round; }
 
         /* VISOR DE IMÁGENES AMPLIADAS (MODAL) */
-        .img-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.9); z-index: 10000; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.2s ease; }
+        .img-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.95); z-index: 10000; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.2s ease; overflow: auto; }
         .img-modal.active { display: flex; opacity: 1; }
-        .img-modal-content { max-width: 95%; max-height: 90vh; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); object-fit: contain; cursor: zoom-out; }
-        .img-modal-close { position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.6); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; }
+        .img-modal-content { max-width: 100%; max-height: 100vh; object-fit: contain; }
+        .img-modal-close { position: fixed; top: 20px; right: 20px; background: rgba(0,0,0,0.6); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 10001; }
 
         /* ESTILOS DE IMPRESIÓN PARA EXPORTAR A PDF */
         @media print {
@@ -146,8 +146,8 @@
 </head>
 <body>
 
-    <div id="img-modal" class="img-modal" onclick="closeImageModal()">
-        <button class="img-modal-close">
+    <div id="img-modal" class="img-modal" onclick="if(event.target === this) closeImageModal()">
+        <button class="img-modal-close" onclick="closeImageModal()">
             <svg viewBox="0 0 24 24" style="width:24px;height:24px;stroke:currentColor;fill:none;"><path d="M6 18L18 6M6 6l12 12"></path></svg>
         </button>
         <img id="img-modal-src" class="img-modal-content" src="" alt="Ampliación">
@@ -257,6 +257,11 @@
                 <div class="prog-container" style="height: 8px; margin: 0.5rem 0;"><div class="prog-bar" id="stat-esp-bar"></div></div>
                 <p id="stat-esp-txt" style="font-size: 0.8rem; color: var(--text-muted); text-align: right;">0%</p>
             </div>
+            <div class="card">
+                <h3>Sesiones de Apoyo</h3>
+                <div class="prog-container" style="height: 8px; margin: 0.5rem 0;"><div class="prog-bar" id="stat-ses-bar" style="background: var(--primary);"></div></div>
+                <p id="stat-ses-txt" style="font-size: 0.8rem; color: var(--text-muted); text-align: right;">0%</p>
+            </div>
         </section>
 
         <section id="varios" class="section">
@@ -274,7 +279,12 @@
 
             <div class="card">
                 <h3>Estructura del Temario</h3>
-                <img src="temario.png" alt="Mapa del Temario" style="margin-top: 0.5rem; border: 1px solid var(--border); cursor: zoom-in;" onclick="openImageModal(this.src)">
+                <img src="temario.png" alt="Mapa del Temario" style="margin-top: 0.5rem; border: 1px solid var(--border);" onclick="openImageModal(this.src)">
+            </div>
+
+            <div class="card">
+                <h3>Sesiones</h3>
+                <div id="tree-sesiones" style="margin-top: 0.5rem;"></div>
             </div>
 
             <div class="card">
@@ -289,7 +299,7 @@
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <h3>CeDos - Actualizaciones</h3>
-                    <span style="background: var(--primary-light); color: var(--primary); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">v1.8.0</span>
+                    <span style="background: var(--primary-light); color: var(--primary); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">v1.9.0</span>
                 </div>
                 <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; margin-top: 0.5rem;">Fuerza la recarga para aplicar actualizaciones del código base.</p>
                 <button class="btn" onclick="window.location.reload(true)" style="width: 100%; justify-content: center;">
@@ -360,8 +370,9 @@
         const GITHUB_REPO = 'CeDos';
         const EXAM_DATE = new Date('2026-11-28T00:00:00');
         
-        let dbTree = JSON.parse(localStorage.getItem('cedos_tree')) || { General: {}, Especifico: {}, Varios: [] };
+        let dbTree = JSON.parse(localStorage.getItem('cedos_tree')) || { General: {}, Especifico: {}, Sesiones: {}, Varios: [] };
         if(!dbTree.Varios) dbTree.Varios = [];
+        if(!dbTree.Sesiones) dbTree.Sesiones = {};
 
         let lastTab = 'general';
         let currentTopic = null;
@@ -376,13 +387,15 @@
             updateStats();
         });
 
-        // Visor de Imágenes (Modal)
+        // Visor de Imágenes (Modal con Zoom nativo desbloqueado)
         function openImageModal(src) {
             document.getElementById('img-modal-src').src = src;
             document.getElementById('img-modal').classList.add('active');
+            document.getElementById('viewport-meta').setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes');
         }
         function closeImageModal() {
             document.getElementById('img-modal').classList.remove('active');
+            document.getElementById('viewport-meta').setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
         }
 
         function initTimeBar() {
@@ -447,16 +460,16 @@
                 const treeUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/git/trees/${bInfo.default_branch}?recursive=1`;
                 const data = await fetch(treeUrl).then(r=>r.json());
                 
-                const newTree = { General: {}, Especifico: {}, Varios: [] };
+                const newTree = { General: {}, Especifico: {}, Sesiones: {}, Varios: [] };
                 
                 data.tree.forEach(f => {
                     if(f.path.endsWith('.html')) {
                         const pts = f.path.split('/');
                         if(pts[0] === 'Temario' && pts.length >= 3) {
                             const rootRaw = pts[1].normalize("NFD").replace(/[\u0300-\u036f]/g, ""); 
-                            if(rootRaw === 'General' || rootRaw === 'Especial') {
-                                const treeKey = rootRaw === 'General' ? 'General' : 'Especifico';
-                                const sub = pts.length > 3 ? pts[2] : 'General';
+                            if(rootRaw === 'General' || rootRaw === 'Especial' || rootRaw === 'Sesiones') {
+                                const treeKey = rootRaw === 'General' ? 'General' : (rootRaw === 'Especial' ? 'Especifico' : 'Sesiones');
+                                const sub = pts.length > 3 ? pts[2] : (treeKey === 'Especifico' ? 'Especial' : treeKey);
                                 const file = pts[pts.length - 1];
                                 
                                 if(!newTree[treeKey][sub]) newTree[treeKey][sub] = [];
@@ -530,11 +543,12 @@
                     });
                     html += `</div></div>`;
                 }
-                return html || '<p style="color:var(--text-muted); font-size:0.9rem;">Sin contenido. Escanea desde Ajustes.</p>';
+                return html || '<p style="color:var(--text-muted); font-size:0.9rem;">Sin contenido.</p>';
             };
 
             document.getElementById('tree-general').innerHTML = buildHtml(dbTree.General);
             document.getElementById('tree-especifico').innerHTML = buildHtml(dbTree.Especifico);
+            document.getElementById('tree-sesiones').innerHTML = buildHtml(dbTree.Sesiones);
 
             const variosHtml = (dbTree.Varios || []).map(f => `
                 <div class="file-item" onclick="loadTopic('${f.path}', '${f.name}')">
@@ -544,7 +558,7 @@
                     </div>
                 </div>
             `).join('');
-            document.getElementById('tree-varios').innerHTML = variosHtml || '<p style="color:var(--text-muted); font-size:0.85rem;">No hay archivos HTML adicionales en la carpeta Varios.</p>';
+            document.getElementById('tree-varios').innerHTML = variosHtml || '<p style="color:var(--text-muted); font-size:0.85rem;">No hay archivos adicionales.</p>';
         }
 
         function toggleListCheck(path, cb) {
@@ -880,12 +894,16 @@
             
             const pGen = calcGroup(dbTree.General);
             const pEsp = calcGroup(dbTree.Especifico);
+            const pSes = calcGroup(dbTree.Sesiones);
             
             document.getElementById('stat-gen-bar').style.width = pGen + '%';
             document.getElementById('stat-gen-txt').innerText = pGen + '% completado';
             
             document.getElementById('stat-esp-bar').style.width = pEsp + '%';
             document.getElementById('stat-esp-txt').innerText = pEsp + '% completado';
+
+            document.getElementById('stat-ses-bar').style.width = pSes + '%';
+            document.getElementById('stat-ses-txt').innerText = pSes + '% completado';
         }
 
         function exportBackup() {
