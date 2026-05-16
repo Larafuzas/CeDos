@@ -118,12 +118,18 @@
         .hl-icon-btn:hover { background: var(--bg-base); color: var(--text-main); }
         .hl-icon-btn.goto { color: var(--primary); }
 
-        /* COMPONENTES GENERALES */
+        /* COMPONENTES GENERALES Y MODAL */
         .btn { display: inline-flex; align-items: center; gap: 8px; padding: 0.75rem 1rem; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; color: var(--text-main); cursor: pointer; font-size: 0.9rem; }
         .btn-primary { background: var(--primary); color: white; border: none; }
         .card { background: var(--bg-surface); padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid var(--border); }
-        img { max-width: 100%; height: auto; border-radius: 8px; }
+        img { max-width: 100%; height: auto; border-radius: 8px; cursor: zoom-in; }
         svg { stroke-linecap: round; stroke-linejoin: round; }
+
+        /* VISOR DE IMÁGENES AMPLIADAS (MODAL) */
+        .img-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.9); z-index: 10000; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.2s ease; }
+        .img-modal.active { display: flex; opacity: 1; }
+        .img-modal-content { max-width: 95%; max-height: 90vh; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); object-fit: contain; cursor: zoom-out; }
+        .img-modal-close { position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.6); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; }
 
         /* ESTILOS DE IMPRESIÓN PARA EXPORTAR A PDF */
         @media print {
@@ -138,6 +144,13 @@
     </style>
 </head>
 <body>
+
+    <div id="img-modal" class="img-modal" onclick="closeImageModal()">
+        <button class="img-modal-close">
+            <svg viewBox="0 0 24 24" style="width:24px;height:24px;stroke:currentColor;fill:none;"><path d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+        <img id="img-modal-src" class="img-modal-content" src="" alt="Ampliación">
+    </div>
 
     <div id="hl-bubble">
         <div class="hl-toolbar">
@@ -260,7 +273,12 @@
 
             <div class="card">
                 <h3>Estructura del Temario</h3>
-                <img src="temario.png" alt="Mapa del Temario" style="margin-top: 0.5rem; border: 1px solid var(--border);">
+                <img src="temario.png" alt="Mapa del Temario" style="margin-top: 0.5rem; border: 1px solid var(--border);" onclick="openImageModal(this.src)">
+                
+                <button class="btn" style="margin-top: 1rem; width: 100%; justify-content: center; color: var(--primary); border-color: var(--primary);" onclick="loadTopic('temario.html', 'Temario Detallado')">
+                    <svg viewBox="0 0 24 24" style="width:16px; height:16px; stroke:currentColor; fill:none;"><path d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"></path></svg>
+                    Leer Temario Detallado
+                </button>
             </div>
 
             <div class="card">
@@ -275,7 +293,7 @@
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <h3>CeDos - Actualizaciones</h3>
-                    <span style="background: var(--primary-light); color: var(--primary); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">v1.6.2</span>
+                    <span style="background: var(--primary-light); color: var(--primary); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">v1.7.0</span>
                 </div>
                 <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; margin-top: 0.5rem;">Fuerza la recarga para aplicar actualizaciones del código base.</p>
                 <button class="btn" onclick="window.location.reload(true)" style="width: 100%; justify-content: center;">
@@ -361,6 +379,15 @@
             renderTrees();
             updateStats();
         });
+
+        // Visor de Imágenes (Modal)
+        function openImageModal(src) {
+            document.getElementById('img-modal-src').src = src;
+            document.getElementById('img-modal').classList.add('active');
+        }
+        function closeImageModal() {
+            document.getElementById('img-modal').classList.remove('active');
+        }
 
         function initTimeBar() {
             const updateTime = () => {
@@ -519,7 +546,7 @@
                     </div>
                 </div>
             `).join('');
-            document.getElementById('tree-varios').innerHTML = variosHtml || '<p style="color:var(--text-muted); font-size:0.85rem;">No hay archivos HTML adicionales en la carpeta Varios.</p>';
+            document.getElementById('tree-varios').innerHTML = variosHtml || '<p style="color:var(--text-muted); font-size:0.85rem;">No hay archivos.</p>';
         }
 
         function toggleListCheck(path, cb) {
@@ -550,6 +577,11 @@
                         tbl.parentNode.insertBefore(wrapper, tbl);
                         wrapper.appendChild(tbl);
                     }
+                });
+                
+                // Hacer las imágenes del lector ampliables
+                cont.querySelectorAll('img').forEach(img => {
+                    img.onclick = () => openImageModal(img.src);
                 });
 
                 restoreVisualHighlights();
