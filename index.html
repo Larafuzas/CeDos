@@ -92,10 +92,17 @@
         #reader-content h2 { margin-top: 1.5rem; margin-bottom: 0.5rem; font-size: 1.2rem; line-height: 1.3;}
         #reader-content p, #reader-content ul { margin-bottom: 1rem; }
 
-        /* ESTILOS DE SUBRAYADO Y TACHADO DENTRO DEL TEXTO */
-        .mark-hl { background-color: var(--highlight); color: #000; border-radius: 3px; padding: 2px 0; transition: background 0.3s; }
-        .mark-strike { text-decoration: line-through; text-decoration-color: var(--danger); text-decoration-thickness: 2px; color: var(--text-muted); background-color: rgba(239, 68, 68, 0.1); padding: 2px 0; border-radius: 3px; transition: background 0.3s; }
-        .mark-comment { background-color: transparent; transition: background 0.3s; }
+        /* ESTILOS DE SUBRAYADO Y TACHADO (NUEVO MOTOR) */
+        .mark-hl { background-color: var(--highlight); color: #000; padding: 2px 0; border-radius: 2px; }
+        .mark-strike { text-decoration: line-through; text-decoration-color: var(--danger); text-decoration-thickness: 2px; color: var(--text-muted); background-color: rgba(239, 68, 68, 0.1); padding: 2px 0; border-radius: 2px; }
+        .mark-comment { background-color: transparent; }
+        
+        /* Efecto destello al "Ir al texto" */
+        .flash-hl { animation: flashHighlight 1.5s ease-out; }
+        @keyframes flashHighlight {
+            0% { background-color: #fca5a5; border-radius: 4px; padding: 2px 4px; color: black; }
+            100% { background-color: transparent; border-radius: 0; padding: 0; }
+        }
         
         /* BURBUJA DE ACCIONES */
         #hl-bubble { position: absolute; display: none; background: #1e293b; padding: 6px; border-radius: 8px; z-index: 9999; box-shadow: 0 4px 12px rgba(0,0,0,0.3); transition: opacity 0.2s; white-space: nowrap; }
@@ -300,7 +307,7 @@
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <h3>CeDos - Actualizaciones</h3>
-                    <span style="background: var(--primary-light); color: var(--primary); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">v1.9.4</span>
+                    <span style="background: var(--primary-light); color: var(--primary); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">v1.9.5</span>
                 </div>
                 <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; margin-top: 0.5rem;">Fuerza la recarga para aplicar actualizaciones del código base.</p>
                 <button class="btn" onclick="window.location.reload(true)" style="width: 100%; justify-content: center;">
@@ -308,11 +315,10 @@
                     Recargar App
                 </button>
                 <details style="margin-top: 12px; font-size: 0.75rem; color: var(--text-muted);">
-                    <summary style="cursor: pointer; font-weight: 500; outline: none;">Novedades de la versión 1.9.4</summary>
+                    <summary style="cursor: pointer; font-weight: 500; outline: none;">Novedades de la versión 1.9.5</summary>
                     <ul style="margin-top: 8px; padding-left: 20px; line-height: 1.5;">
-                        <li><strong>FIX Crítico de Botones (iOS):</strong> Corregido el bloqueo de eventos táctiles que impedía interactuar con la burbuja en Safari.</li>
-                        <li><strong>FIX Crítico del Lector:</strong> El fallo en el renderizado de anotaciones ya no bloqueará el botón "Volver a posición".</li>
-                        <li><strong>Anotaciones en tiempo real:</strong> Ahora la app pinta el subrayado en la pantalla de inmediato mediante clonación del rango.</li>
+                        <li><strong>Nuevo Motor de Subrayado Múltiple:</strong> Las etiquetas de color ahora respetan las negritas y saltos de línea del documento sin fallar.</li>
+                        <li><strong>FIX Salto Exacto:</strong> Al volver a un texto desde "Destacados", el ancla funcionará siempre y la frase emitirá un destello de color rojo para que sepas dónde está ubicada.</li>
                     </ul>
                 </details>
             </div>
@@ -607,20 +613,16 @@
                     img.style.cursor = 'zoom-in';
                 });
 
-                // Blindamos la función para que no rompa la ejecución general
-                try {
-                    restoreVisualHighlights();
-                } catch(e) { console.error("Error al restaurar anotaciones:", e); }
+                // Restaurar todas las anotaciones que teníamos guardadas
+                restoreVisualHighlights();
                 
                 setTimeout(() => {
                     if(jumpToHlId) {
                         const targetEl = document.getElementById('hl-' + jumpToHlId);
                         if(targetEl) {
-                            const originalBg = targetEl.style.backgroundColor;
-                            targetEl.style.transition = 'background-color 0.5s ease';
-                            targetEl.style.backgroundColor = 'var(--highlight)';
                             targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                            setTimeout(() => { targetEl.style.backgroundColor = originalBg || 'transparent'; }, 1500);
+                            targetEl.classList.add('flash-hl');
+                            setTimeout(() => { targetEl.classList.remove('flash-hl'); }, 1500);
                         }
                         jumpToHlId = null; 
                     } 
@@ -687,7 +689,7 @@
             }
         });
 
-        // --- SISTEMA DE ANOTACIONES (SOLUCIÓN DEFINITIVA iOS) ---
+        // --- SISTEMA DE ANOTACIONES (SOLUCIÓN DEFINITIVA PARA iOS) ---
         function handleSelection(e) {
             if(!document.getElementById('reader').classList.contains('active')) return;
             
@@ -699,7 +701,7 @@
                 if(selText.length > 5 && selection.rangeCount > 0) {
                     selectedTextTemp = selText;
                     
-                    // Aseguramos capturar el rango nativo antes de que iOS lo borre al tocar la burbuja
+                    // Clonamos el rango inmediatamente antes de que el prompt nativo de iOS o el touchend lo destruyan
                     savedRange = selection.getRangeAt(0).cloneRange();
                     
                     const rect = savedRange.getBoundingClientRect();
@@ -727,43 +729,67 @@
         document.addEventListener('mousedown', hideBubbleOnOutsideClick);
         document.addEventListener('touchstart', hideBubbleOnOutsideClick);
 
+        // Envuelve con seguridad cada nodo de texto del rango seleccionado sin destruir el HTML
+        function safeHighlightRange(range, spanClass, id) {
+            const nodes = [];
+            const iterator = document.createNodeIterator(range.commonAncestorContainer, NodeFilter.SHOW_TEXT, null, false);
+            let node;
+            while (node = iterator.nextNode()) {
+                if (range.intersectsNode(node)) nodes.push(node);
+            }
+            if (nodes.length === 0) return;
+
+            let startNode = nodes[0];
+            let endNode = nodes[nodes.length - 1];
+
+            if (startNode === range.startContainer && range.startOffset > 0) {
+                startNode = startNode.splitText(range.startOffset);
+                nodes[0] = startNode;
+            }
+            if (endNode === range.endContainer && range.endOffset < endNode.nodeValue.length) {
+                endNode.splitText(range.endOffset);
+            }
+
+            nodes.forEach((n, i) => {
+                if(n.nodeValue.trim().length === 0) return;
+                const span = document.createElement('span');
+                span.className = spanClass;
+                if (i === 0) span.id = id;
+                n.parentNode.insertBefore(span, n);
+                span.appendChild(n);
+            });
+        }
+
         function saveAnnotation(type) {
             document.getElementById('hl-bubble').style.display = 'none';
             const newId = Date.now().toString();
-            let appliedSpan = false;
+            let spanClass = 'mark-comment';
+            if (type === 'hl') spanClass = 'mark-hl';
+            if (type === 'strike') spanClass = 'mark-strike';
 
-            // 1. INYECTAR ESPACIO VISUAL ANTES DEL PROMPT PARA QUE NO SE PIERDA
+            // Pintamos el DOM de inmediato usando nuestro inyector seguro
             if (savedRange) {
-                const span = document.createElement('span');
-                span.id = `hl-${newId}`;
-                span.className = type === 'hl' ? 'mark-hl' : (type === 'strike' ? 'mark-strike' : 'mark-comment');
                 try {
-                    savedRange.surroundContents(span);
-                    appliedSpan = true;
-                } catch(e) {
-                    try {
-                        span.appendChild(savedRange.extractContents());
-                        savedRange.insertNode(span);
-                        appliedSpan = true;
-                    } catch(err) { console.error("No se pudo inyectar nodo:", err); }
-                }
+                    safeHighlightRange(savedRange, spanClass, `hl-${newId}`);
+                } catch(e) { console.error("Error aplicando el estilo en vivo:", e); }
             }
             
             window.getSelection().removeAllRanges();
             savedRange = null;
 
-            // 2. PEDIR DATOS AL USUARIO CON UN LIGERO RETARDO
+            // Damos un respiro al DOM antes de sacar el Prompt bloqueante
             setTimeout(() => {
                 let comment = null;
                 if (type === 'comment') {
                     comment = prompt("Escribe tu comentario sobre este fragmento:");
-                    if(comment === null) { if(appliedSpan) undoAnnotation(newId); return; }
                 } else if (type === 'strike') {
                     comment = prompt("Motivo de la corrección:");
-                    if(comment === null) { if(appliedSpan) undoAnnotation(newId); return; }
                 } else {
                     comment = prompt("Añadir nota adicional (opcional):");
                 }
+
+                // Si cancela el prompt, no guardamos la nota, pero se quedará pintado temporalmente hasta que cambie de tema
+                if ((type === 'comment' || type === 'strike') && comment === null) return;
 
                 let hls = JSON.parse(localStorage.getItem('cedos_hls')) || [];
                 hls.push({
@@ -776,19 +802,75 @@
                     date: new Date().toLocaleDateString()
                 });
                 localStorage.setItem('cedos_hls', JSON.stringify(hls));
-                alert("Anotación guardada.");
             }, 50);
         }
 
-        // Si cancela, deshacemos el span que se inyectó temporalmente
-        function undoAnnotation(id) {
-            const el = document.getElementById(`hl-${id}`);
-            if(el) {
-                const parent = el.parentNode;
-                while(el.firstChild) {
-                    parent.insertBefore(el.firstChild, el);
+        function applyHighlightToDOM(hl) {
+            const searchStr = hl.text.trim();
+            if(!searchStr) return;
+
+            let spanClass = 'mark-comment';
+            if (hl.type === 'hl') spanClass = 'mark-hl';
+            if (hl.type === 'strike') spanClass = 'mark-strike';
+            
+            const cont = document.getElementById('reader-content');
+            const walker = document.createTreeWalker(cont, NodeFilter.SHOW_TEXT, null, false);
+            let node;
+            let fullText = "";
+            let nodeMap = [];
+            
+            // Construimos un mapa de offsets que ignora las etiquetas HTML
+            while(node = walker.nextNode()) {
+                let text = node.nodeValue;
+                let start = fullText.length;
+                fullText += text;
+                nodeMap.push({ node: node, start: start, end: fullText.length, text: text });
+            }
+
+            // Búsqueda robusta ignorando espacios o saltos extraños
+            const regexStr = searchStr.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&').split(/\s+/).join('\\s+');
+            const regex = new RegExp(regexStr, 'gi');
+            
+            let match;
+            while ((match = regex.exec(fullText)) !== null) {
+                const matchStart = match.index;
+                const matchEnd = matchStart + match[0].length;
+                
+                const nodesToHighlight = [];
+                let alreadyHighlighted = false;
+
+                // Encontramos qué nodos HTML contienen las letras de nuestro match
+                for (let data of nodeMap) {
+                    if (data.end <= matchStart || data.start >= matchEnd) continue;
+                    
+                    if (data.node.parentElement && data.node.parentElement.id === `hl-${hl.id}`) {
+                        alreadyHighlighted = true;
+                        break;
+                    }
+                    
+                    const relStart = Math.max(0, matchStart - data.start);
+                    const relEnd = Math.min(data.text.length, matchEnd - data.start);
+                    nodesToHighlight.push({ node: data.node, relStart, relEnd });
                 }
-                parent.removeChild(el);
+                
+                if (alreadyHighlighted) continue;
+
+                // Aplicamos el highlight nodo a nodo de atrás hacia adelante para no romper offsets
+                for (let i = nodesToHighlight.length - 1; i >= 0; i--) {
+                    const { node, relStart, relEnd } = nodesToHighlight[i];
+                    if (relStart === relEnd) continue; 
+                    
+                    const middleNode = node.splitText(relStart);
+                    middleNode.splitText(relEnd - relStart);
+                    
+                    const span = document.createElement('span');
+                    span.className = spanClass;
+                    if (i === 0) span.id = `hl-${hl.id}`; 
+                    
+                    span.appendChild(middleNode.cloneNode(true));
+                    middleNode.parentNode.replaceChild(span, middleNode);
+                }
+                break; 
             }
         }
 
@@ -796,65 +878,8 @@
             if (!currentTopic) return;
             const hls = JSON.parse(localStorage.getItem('cedos_hls')) || [];
             const topicHls = hls.filter(h => h.origin === currentTopic.name);
-            
-            if (topicHls.length === 0) return;
-
-            const cont = document.getElementById('reader-content');
-
             topicHls.forEach(hl => {
-                const searchStr = hl.text.trim();
-                if(!searchStr) return;
-
-                let spanClass = 'mark-comment';
-                if (hl.type === 'hl') spanClass = 'mark-hl';
-                if (hl.type === 'strike') spanClass = 'mark-strike';
-                
-                let found = false;
-                const walker = document.createTreeWalker(cont, NodeFilter.SHOW_TEXT, null, false);
-                const nodesToProcess = [];
-                let node;
-                while(node = walker.nextNode()) nodesToProcess.push(node);
-
-                // Método 1: Búsqueda exacta
-                for (let i = 0; i < nodesToProcess.length; i++) {
-                    const n = nodesToProcess[i];
-                    if (n.nodeValue && n.nodeValue.includes(searchStr)) {
-                        if (n.parentElement && n.parentElement.id === `hl-${hl.id}`) continue;
-                        
-                        const escapedStr = searchStr.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-                        const regex = new RegExp(`(${escapedStr})`, 'g');
-                        
-                        const fragment = document.createDocumentFragment();
-                        const tempDiv = document.createElement('div');
-                        tempDiv.innerHTML = n.nodeValue.replace(regex, `<span id="hl-${hl.id}" class="${spanClass}">$1</span>`);
-                        
-                        while(tempDiv.firstChild) fragment.appendChild(tempDiv.firstChild);
-                        n.parentNode.replaceChild(fragment, n);
-                        found = true;
-                        break; 
-                    }
-                }
-
-                // Método 2: Rescate en caso de cortes de línea de HTML (iOS particularities)
-                if(!found) {
-                    const shortSearch = searchStr.substring(0, 15);
-                    if(shortSearch.length > 5) {
-                        for (let i = 0; i < nodesToProcess.length; i++) {
-                            const n = nodesToProcess[i];
-                            if (n.nodeValue && n.nodeValue.includes(shortSearch)) {
-                                if (n.parentElement && n.parentElement.id === `hl-${hl.id}`) continue;
-                                const escapedStr = shortSearch.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-                                const regex = new RegExp(`(${escapedStr})`);
-                                const fragment = document.createDocumentFragment();
-                                const tempDiv = document.createElement('div');
-                                tempDiv.innerHTML = n.nodeValue.replace(regex, `<span id="hl-${hl.id}" class="${spanClass}">$1</span>`);
-                                while(tempDiv.firstChild) fragment.appendChild(tempDiv.firstChild);
-                                n.parentNode.replaceChild(fragment, n);
-                                break; 
-                            }
-                        }
-                    }
-                }
+                try { applyHighlightToDOM(hl); } catch(e) { console.error("Error restaurando anotación:", e); }
             });
         }
 
