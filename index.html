@@ -93,8 +93,8 @@
         #reader-content p, #reader-content ul { margin-bottom: 1rem; }
 
         /* ESTILOS DE SUBRAYADO Y TACHADO DENTRO DEL TEXTO */
-        .mark-hl { background-color: var(--highlight); color: #000; border-radius: 3px; padding: 0 2px; transition: background 0.3s; }
-        .mark-strike { text-decoration: line-through; text-decoration-color: var(--danger); text-decoration-thickness: 2px; color: var(--text-muted); background-color: rgba(239, 68, 68, 0.1); padding: 0 2px; border-radius: 3px; }
+        .mark-hl { background-color: var(--highlight); color: #000; border-radius: 3px; padding: 2px 0; transition: background 0.3s; }
+        .mark-strike { text-decoration: line-through; text-decoration-color: var(--danger); text-decoration-thickness: 2px; color: var(--text-muted); background-color: rgba(239, 68, 68, 0.1); padding: 2px 0; border-radius: 3px; transition: background 0.3s; }
         
         /* BURBUJA DE ACCIONES */
         #hl-bubble { position: absolute; display: none; background: #1e293b; padding: 6px; border-radius: 8px; z-index: 9999; box-shadow: 0 4px 12px rgba(0,0,0,0.3); transition: opacity 0.2s; white-space: nowrap; }
@@ -155,15 +155,15 @@
 
     <div id="hl-bubble">
         <div class="hl-toolbar">
-            <button class="hl-action-btn" onclick="saveAnnotation('hl')">
+            <button class="hl-action-btn" onmousedown="event.preventDefault();" ontouchstart="event.preventDefault();" onclick="saveAnnotation('hl')">
                 <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;"><path stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                 Destacar
             </button>
-            <button class="hl-action-btn" onclick="saveAnnotation('comment')">
+            <button class="hl-action-btn" onmousedown="event.preventDefault();" ontouchstart="event.preventDefault();" onclick="saveAnnotation('comment')">
                 <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;"><path stroke-width="2" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z"></path></svg>
                 Comentar
             </button>
-            <button class="hl-action-btn" onclick="saveAnnotation('strike')">
+            <button class="hl-action-btn" onmousedown="event.preventDefault();" ontouchstart="event.preventDefault();" onclick="saveAnnotation('strike')">
                 <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;"><path stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 Corregir
             </button>
@@ -299,7 +299,7 @@
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <h3>CeDos - Actualizaciones</h3>
-                    <span style="background: var(--primary-light); color: var(--primary); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">v1.9.2</span>
+                    <span style="background: var(--primary-light); color: var(--primary); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">v1.9.3</span>
                 </div>
                 <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; margin-top: 0.5rem;">Fuerza la recarga para aplicar actualizaciones del código base.</p>
                 <button class="btn" onclick="window.location.reload(true)" style="width: 100%; justify-content: center;">
@@ -307,14 +307,12 @@
                     Recargar App
                 </button>
                 <details style="margin-top: 12px; font-size: 0.75rem; color: var(--text-muted);">
-                    <summary style="cursor: pointer; font-weight: 500; outline: none;">Novedades de la versión 1.9.2</summary>
+                    <summary style="cursor: pointer; font-weight: 500; outline: none;">Novedades de la versión 1.9.3</summary>
                     <ul style="margin-top: 8px; padding-left: 20px; line-height: 1.5;">
-                        <li><strong>Registro de cambios:</strong> Nuevo desplegable en Ajustes.</li>
-                        <li><strong>Anotaciones en vivo:</strong> Subrayado y tachado instantáneo sin recargar la página.</li>
+                        <li><strong>FIX Crítico (iOS):</strong> Corregido el bug que impedía subrayar texto en tiempo real al tocar el botón en iPhone/iPad.</li>
+                        <li><strong>Rescate de Anclas:</strong> Mejorado el motor de búsqueda interno para evitar fallos de salto al volver a un texto desde la pestaña "Destacados" cuando la selección cruzaba párrafos o negritas.</li>
                         <li><strong>Marcadores inteligentes:</strong> Anclas invisibles que te llevan al punto exacto de la anotación desde la pestaña Destacados.</li>
                         <li><strong>Zoom en imágenes:</strong> Ampliación táctil real (Pinch-to-zoom) desbloqueada al abrir imágenes.</li>
-                        <li><strong>Nuevas carpetas:</strong> Soporte automático para la carpeta 'Sesiones' e integración de 'Temario/Especial'.</li>
-                        <li><strong>PWA Nativa:</strong> Icono y colores de estado adaptados para iOS y Android.</li>
                     </ul>
                 </details>
             </div>
@@ -357,11 +355,6 @@
                     <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;"><path stroke-width="1.5" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"></path></svg>
                     Volver
                 </button>
-                
-                <button id="bookmark-btn" class="btn" onclick="jumpToBookmark()" style="display:none; padding: 0.5rem 0.75rem; font-size: 0.8rem; background: var(--primary-light); color: var(--primary); border: 1px solid var(--primary);">
-                    <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;"><path stroke-width="1.5" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-width="1.5" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"></path></svg>
-                    Volver a posición
-                </button>
             </div>
             
             <div class="reader-controls">
@@ -389,6 +382,9 @@
         let currentTopic = null;
         let selectedTextTemp = "";
         let jumpToHlId = null; 
+        
+        // ¡NUEVO! Variable global para guardar el rango original de iOS
+        let savedRange = null;
 
         document.addEventListener('DOMContentLoaded', () => {
             initTimeBar();
@@ -582,7 +578,6 @@
             currentTopic = { path, name: name.replace('.html', '') };
             document.getElementById('reader-title').innerText = currentTopic.name;
             document.getElementById('reader-scroll-bar').style.width = (localStorage.getItem(`p_${path}`) || 0) + '%';
-            document.getElementById('bookmark-btn').style.display = 'none';
             
             const cont = document.getElementById('reader-content');
             cont.innerHTML = '<p>Cargando archivo...</p>';
@@ -620,34 +615,6 @@
                         }
                         jumpToHlId = null; 
                     } 
-                    else {
-                        const pct = parseInt(localStorage.getItem(`p_${path}`) || 0);
-                        const isDone = localStorage.getItem(`c_${path}`) === 'true';
-                        
-                        if(pct > 0 && pct < 100 && !isDone) {
-                            cont.style.position = 'relative';
-                            const contentHeight = cont.scrollHeight;
-                            const topPos = (pct / 100) * contentHeight;
-                            
-                            const marker = document.createElement('div');
-                            marker.id = 'bookmark-marker';
-                            marker.innerHTML = `
-                                <div style="display:inline-flex; align-items:center; gap:4px; background:var(--primary); color:white; padding:2px 8px; border-radius:12px; font-size:0.75rem; box-shadow:0 2px 4px rgba(0,0,0,0.1); transform: translateY(-100%); margin-top: -2px;">
-                                    <svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;"><path stroke-width="2" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-width="2" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"></path></svg>
-                                    Última lectura
-                                </div>
-                            `;
-                            marker.style.position = 'absolute';
-                            marker.style.top = topPos + 'px';
-                            marker.style.left = '0';
-                            marker.style.width = '100%';
-                            marker.style.borderTop = '2px dashed var(--primary)';
-                            marker.style.zIndex = '10';
-                            
-                            cont.appendChild(marker);
-                            document.getElementById('bookmark-btn').style.display = 'inline-flex';
-                        }
-                    }
                 }, 400); 
                 
             } catch {
@@ -657,11 +624,6 @@
                         <p>No se pudo cargar el archivo: <b>${path}</b></p>
                     </div>`;
             }
-        }
-
-        function jumpToBookmark() {
-            const marker = document.getElementById('bookmark-marker');
-            if (marker) marker.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
 
         window.addEventListener('scroll', () => {
@@ -683,7 +645,7 @@
             }
         });
 
-        // --- SISTEMA DE ANOTACIONES ---
+        // --- SISTEMA DE ANOTACIONES (SOLUCIÓN iOS) ---
         function handleSelection(e) {
             if(!document.getElementById('reader').classList.contains('active')) return;
             
@@ -692,10 +654,13 @@
                 const selText = selection.toString().trim();
                 const bubble = document.getElementById('hl-bubble');
                 
-                if(selText.length > 5) {
+                if(selText.length > 5 && selection.rangeCount > 0) {
                     selectedTextTemp = selText;
-                    const range = selection.getRangeAt(0);
-                    const rect = range.getBoundingClientRect();
+                    
+                    // ¡CLAVE PARA iOS! Guardamos el rango de la selección antes de tocar nada
+                    savedRange = selection.getRangeAt(0).cloneRange();
+                    
+                    const rect = savedRange.getBoundingClientRect();
                     
                     bubble.style.display = 'block';
                     const bubbleWidth = bubble.offsetWidth || 280;
@@ -707,7 +672,7 @@
                 } else {
                     bubble.style.display = 'none';
                 }
-            }, 100);
+            }, 150); // Un poco más de tiempo para que iOS asiente la selección
         }
 
         document.addEventListener('mouseup', handleSelection);
@@ -735,17 +700,28 @@
 
             const newId = Date.now().toString();
 
-            const selection = window.getSelection();
-            if (selection.rangeCount > 0) {
-                const range = selection.getRangeAt(0);
+            // Usamos el rango guardado (safeguard para iOS)
+            if (savedRange && type !== 'comment') {
                 const span = document.createElement('span');
                 span.id = `hl-${newId}`;
-                span.className = type === 'hl' ? 'mark-hl' : (type === 'strike' ? 'mark-strike' : 'mark-comment');
+                span.className = type === 'hl' ? 'mark-hl' : 'mark-strike';
                 try {
-                    range.surroundContents(span);
+                    savedRange.surroundContents(span);
                 } catch(e) {
-                    span.appendChild(range.extractContents());
-                    range.insertNode(span);
+                    // Si cruza párrafos o negritas, forzamos la envoltura
+                    span.appendChild(savedRange.extractContents());
+                    savedRange.insertNode(span);
+                }
+            } else if (savedRange && type === 'comment') {
+                // Ancla invisible para comentarios
+                const span = document.createElement('span');
+                span.id = `hl-${newId}`;
+                span.className = 'mark-comment';
+                try {
+                    savedRange.surroundContents(span);
+                } catch(e) {
+                    span.appendChild(savedRange.extractContents());
+                    savedRange.insertNode(span);
                 }
             }
 
@@ -762,7 +738,7 @@
             localStorage.setItem('cedos_hls', JSON.stringify(hls));
             
             window.getSelection().removeAllRanges();
-            alert("Anotación guardada.");
+            savedRange = null; // Limpiar rango
         }
 
         function restoreVisualHighlights() {
@@ -775,16 +751,20 @@
             const cont = document.getElementById('reader-content');
 
             topicHls.forEach(hl => {
-                const searchStr = hl.text;
+                const searchStr = hl.text.trim();
+                if(!searchStr) return;
+
                 let spanClass = 'mark-comment';
                 if (hl.type === 'hl') spanClass = 'mark-hl';
                 if (hl.type === 'strike') spanClass = 'mark-strike';
                 
+                let found = false;
                 const walker = document.createTreeWalker(cont, NodeFilter.SHOW_TEXT, null, false);
                 const nodesToProcess = [];
                 let node;
                 while(node = walker.nextNode()) nodesToProcess.push(node);
 
+                // Intento 1: Búsqueda exacta
                 for (let i = 0; i < nodesToProcess.length; i++) {
                     const n = nodesToProcess[i];
                     if (n.nodeValue && n.nodeValue.includes(searchStr)) {
@@ -797,11 +777,31 @@
                         const tempDiv = document.createElement('div');
                         tempDiv.innerHTML = n.nodeValue.replace(regex, `<span id="hl-${hl.id}" class="${spanClass}">$1</span>`);
                         
-                        while(tempDiv.firstChild) {
-                            fragment.appendChild(tempDiv.firstChild);
-                        }
+                        while(tempDiv.firstChild) fragment.appendChild(tempDiv.firstChild);
                         n.parentNode.replaceChild(fragment, n);
+                        found = true;
                         break; 
+                    }
+                }
+
+                // Intento 2: Rescate anti-fragmentación (Si el texto cruzaba párrafos en iOS)
+                if(!found) {
+                    const shortSearch = searchStr.substring(0, 15); // Buscar solo las primeras 15 letras para poner el ancla
+                    if(shortSearch.length > 5) {
+                        for (let i = 0; i < nodesToProcess.length; i++) {
+                            const n = nodesToProcess[i];
+                            if (n.nodeValue && n.nodeValue.includes(shortSearch)) {
+                                if (n.parentElement && n.parentElement.id === `hl-${hl.id}`) continue;
+                                const escapedStr = shortSearch.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+                                const regex = new RegExp(`(${escapedStr})`);
+                                const fragment = document.createDocumentFragment();
+                                const tempDiv = document.createElement('div');
+                                tempDiv.innerHTML = n.nodeValue.replace(regex, `<span id="hl-${hl.id}" class="${spanClass}">$1</span>`);
+                                while(tempDiv.firstChild) fragment.appendChild(tempDiv.firstChild);
+                                n.parentNode.replaceChild(fragment, n);
+                                break; 
+                            }
+                        }
                     }
                 }
             });
