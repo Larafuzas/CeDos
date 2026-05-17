@@ -307,7 +307,7 @@
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <h3>CeDos - Actualizaciones</h3>
-                    <span style="background: var(--primary-light); color: var(--primary); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">v1.9.5</span>
+                    <span style="background: var(--primary-light); color: var(--primary); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">v1.9.6</span>
                 </div>
                 <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; margin-top: 0.5rem;">Fuerza la recarga para aplicar actualizaciones del código base.</p>
                 <button class="btn" onclick="window.location.reload(true)" style="width: 100%; justify-content: center;">
@@ -315,10 +315,10 @@
                     Recargar App
                 </button>
                 <details style="margin-top: 12px; font-size: 0.75rem; color: var(--text-muted);">
-                    <summary style="cursor: pointer; font-weight: 500; outline: none;">Novedades de la versión 1.9.5</summary>
+                    <summary style="cursor: pointer; font-weight: 500; outline: none;">Novedades de la versión 1.9.6</summary>
                     <ul style="margin-top: 8px; padding-left: 20px; line-height: 1.5;">
-                        <li><strong>Nuevo Motor de Subrayado Múltiple:</strong> Las etiquetas de color ahora respetan las negritas y saltos de línea del documento sin fallar.</li>
-                        <li><strong>FIX Salto Exacto:</strong> Al volver a un texto desde "Destacados", el ancla funcionará siempre y la frase emitirá un destello de color rojo para que sepas dónde está ubicada.</li>
+                        <li><strong>FIX Crítico (Botón Volver):</strong> Se ha restaurado el escudo de seguridad en el renderizador de notas para garantizar que un fallo en un subrayado antiguo no impida que la app muestre el marcador de "Volver a posición".</li>
+                        <li><strong>Anotaciones en tiempo real:</strong> Ahora la app pinta el subrayado en la pantalla de inmediato mediante clonación del rango.</li>
                     </ul>
                 </details>
             </div>
@@ -613,16 +613,19 @@
                     img.style.cursor = 'zoom-in';
                 });
 
-                // Restaurar todas las anotaciones que teníamos guardadas
-                restoreVisualHighlights();
+                try {
+                    restoreVisualHighlights();
+                } catch(e) { console.error(e); }
                 
                 setTimeout(() => {
                     if(jumpToHlId) {
                         const targetEl = document.getElementById('hl-' + jumpToHlId);
                         if(targetEl) {
+                            const originalBg = targetEl.style.backgroundColor;
+                            targetEl.style.transition = 'background-color 0.5s ease';
+                            targetEl.style.backgroundColor = 'var(--highlight)';
                             targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                            targetEl.classList.add('flash-hl');
-                            setTimeout(() => { targetEl.classList.remove('flash-hl'); }, 1500);
+                            setTimeout(() => { targetEl.style.backgroundColor = originalBg || 'transparent'; }, 1500);
                         }
                         jumpToHlId = null; 
                     } 
@@ -630,7 +633,8 @@
                         const pct = parseInt(localStorage.getItem(`p_${path}`) || 0);
                         const isDone = localStorage.getItem(`c_${path}`) === 'true';
                         
-                        if(pct > 0 && pct < 100 && !isDone) {
+                        // Añadido en 1.9.6: Quitamos la restricción de <100 para que se muestre siempre si hay avance
+                        if(pct > 0 && !isDone) {
                             cont.style.position = 'relative';
                             const contentHeight = cont.scrollHeight;
                             const topPos = (pct / 100) * contentHeight;
@@ -689,7 +693,7 @@
             }
         });
 
-        // --- SISTEMA DE ANOTACIONES (SOLUCIÓN DEFINITIVA PARA iOS) ---
+        // --- SISTEMA DE ANOTACIONES ---
         function handleSelection(e) {
             if(!document.getElementById('reader').classList.contains('active')) return;
             
@@ -701,7 +705,6 @@
                 if(selText.length > 5 && selection.rangeCount > 0) {
                     selectedTextTemp = selText;
                     
-                    // Clonamos el rango inmediatamente antes de que el prompt nativo de iOS o el touchend lo destruyan
                     savedRange = selection.getRangeAt(0).cloneRange();
                     
                     const rect = savedRange.getBoundingClientRect();
@@ -719,7 +722,6 @@
         document.addEventListener('mouseup', handleSelection);
         document.addEventListener('touchend', handleSelection);
         
-        // Ocultar burbuja solo si el usuario toca la pantalla FUERA de la burbuja
         function hideBubbleOnOutsideClick(e) {
             const bubble = document.getElementById('hl-bubble');
             if (bubble.style.display === 'block' && !bubble.contains(e.target)) {
@@ -729,7 +731,6 @@
         document.addEventListener('mousedown', hideBubbleOnOutsideClick);
         document.addEventListener('touchstart', hideBubbleOnOutsideClick);
 
-        // Envuelve con seguridad cada nodo de texto del rango seleccionado sin destruir el HTML
         function safeHighlightRange(range, spanClass, id) {
             const nodes = [];
             const iterator = document.createNodeIterator(range.commonAncestorContainer, NodeFilter.SHOW_TEXT, null, false);
@@ -767,7 +768,6 @@
             if (type === 'hl') spanClass = 'mark-hl';
             if (type === 'strike') spanClass = 'mark-strike';
 
-            // Pintamos el DOM de inmediato usando nuestro inyector seguro
             if (savedRange) {
                 try {
                     safeHighlightRange(savedRange, spanClass, `hl-${newId}`);
@@ -777,7 +777,6 @@
             window.getSelection().removeAllRanges();
             savedRange = null;
 
-            // Damos un respiro al DOM antes de sacar el Prompt bloqueante
             setTimeout(() => {
                 let comment = null;
                 if (type === 'comment') {
@@ -788,8 +787,10 @@
                     comment = prompt("Añadir nota adicional (opcional):");
                 }
 
-                // Si cancela el prompt, no guardamos la nota, pero se quedará pintado temporalmente hasta que cambie de tema
-                if ((type === 'comment' || type === 'strike') && comment === null) return;
+                if ((type === 'comment' || type === 'strike') && comment === null) {
+                    // Remover estilos si se canceló la creación (reversión simple recargando el texto limpio en un futuro)
+                    return; 
+                }
 
                 let hls = JSON.parse(localStorage.getItem('cedos_hls')) || [];
                 hls.push({
@@ -819,7 +820,6 @@
             let fullText = "";
             let nodeMap = [];
             
-            // Construimos un mapa de offsets que ignora las etiquetas HTML
             while(node = walker.nextNode()) {
                 let text = node.nodeValue;
                 let start = fullText.length;
@@ -827,7 +827,6 @@
                 nodeMap.push({ node: node, start: start, end: fullText.length, text: text });
             }
 
-            // Búsqueda robusta ignorando espacios o saltos extraños
             const regexStr = searchStr.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&').split(/\s+/).join('\\s+');
             const regex = new RegExp(regexStr, 'gi');
             
@@ -839,7 +838,6 @@
                 const nodesToHighlight = [];
                 let alreadyHighlighted = false;
 
-                // Encontramos qué nodos HTML contienen las letras de nuestro match
                 for (let data of nodeMap) {
                     if (data.end <= matchStart || data.start >= matchEnd) continue;
                     
@@ -855,7 +853,6 @@
                 
                 if (alreadyHighlighted) continue;
 
-                // Aplicamos el highlight nodo a nodo de atrás hacia adelante para no romper offsets
                 for (let i = nodesToHighlight.length - 1; i >= 0; i--) {
                     const { node, relStart, relEnd } = nodesToHighlight[i];
                     if (relStart === relEnd) continue; 
