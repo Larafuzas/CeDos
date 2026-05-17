@@ -110,10 +110,10 @@
         .hl-action-btn:hover { background: #334155; }
 
         /* SECCIÓN DESTACADOS E INTERFAZ DE ÁRBOL DE FILTROS */
-        .hl-filters { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 1.5rem; background: var(--bg-surface); padding: 1rem; border-radius: 8px; border: 1px solid var(--border); align-items: flex-start; }
-        .hl-filters select { flex: 1; min-width: 150px; padding: 0.6rem; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-base); color: var(--text-main); height: 42px; font-size: 0.9rem; }
+        .hl-filters { display: flex; gap: 10px; flex-wrap: nowrap; margin-bottom: 1.5rem; background: var(--bg-surface); padding: 1rem; border-radius: 8px; border: 1px solid var(--border); align-items: center; }
+        .hl-filters select { flex: 1; min-width: 0; padding: 0.5rem; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-base); color: var(--text-main); height: 42px; font-size: 0.85rem; }
         
-        .tree-filter-container { position: relative; flex: 1; min-width: 220px; }
+        .tree-filter-container { position: relative; flex: 1; min-width: 0; }
         .tree-dropdown { display: none; position: absolute; top: 100%; left: 0; right: 0; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); z-index: 100; max-height: 350px; overflow-y: auto; padding: 12px; margin-top: 8px; }
         .tree-ul { list-style: none; padding-left: 18px; margin: 4px 0; border-left: 1px dashed var(--border); }
         .tree-ul.root { padding-left: 0; border-left: none; }
@@ -171,15 +171,15 @@
 
     <div id="hl-bubble">
         <div class="hl-toolbar">
-            <button class="hl-action-btn" onclick="saveAnnotation('hl')">
+            <button class="hl-action-btn" onmousedown="event.preventDefault();" ontouchstart="event.preventDefault();" onclick="saveAnnotation('hl')">
                 <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;"><path stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                 Destacar
             </button>
-            <button class="hl-action-btn" onclick="saveAnnotation('comment')">
+            <button class="hl-action-btn" onmousedown="event.preventDefault();" ontouchstart="event.preventDefault();" onclick="saveAnnotation('comment')">
                 <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;"><path stroke-width="2" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z"></path></svg>
                 Comentar
             </button>
-            <button class="hl-action-btn" onclick="saveAnnotation('strike')">
+            <button class="hl-action-btn" onmousedown="event.preventDefault();" ontouchstart="event.preventDefault();" onclick="saveAnnotation('strike')">
                 <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;"><path stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 Corregir
             </button>
@@ -246,17 +246,17 @@
                 </div>
             </div>
 
-            <div class="hl-filters">
+            <div class="hl-filters" style="display: flex; gap: 10px; flex-wrap: nowrap;">
                 <select id="filter-type" onchange="renderHighlights()">
-                    <option value="all">Todos los tipos</option>
-                    <option value="hl">Solo Destacados</option>
-                    <option value="comment">Solo Comentarios</option>
-                    <option value="strike">Solo Correcciones</option>
+                    <option value="all">Todos</option>
+                    <option value="hl">Destacados</option>
+                    <option value="comment">Comentarios</option>
+                    <option value="strike">Correcciones</option>
                 </select>
                 
                 <div class="tree-filter-container">
-                    <button id="tree-filter-btn" class="btn" style="width:100%; justify-content:space-between; height: 42px;" onclick="toggleTreeDropdown()">
-                        Ubicación: Todos ▼
+                    <button id="tree-filter-btn" class="btn" style="width:100%; justify-content:space-between; height: 42px; font-size: 0.85rem; padding: 0.6rem;" onclick="toggleTreeDropdown()">
+                        <b>Todos</b> ▼
                     </button>
                     <div id="tree-dropdown" class="tree-dropdown">
                         <div style="display:flex; justify-content:space-between; margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid var(--border);">
@@ -325,7 +325,7 @@
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <h3>CeDos - Actualizaciones</h3>
-                    <span style="background: var(--primary-light); color: var(--primary); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">v1.9.9</span>
+                    <span style="background: var(--primary-light); color: var(--primary); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">v1.10.0</span>
                 </div>
                 <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; margin-top: 0.5rem;">Fuerza la recarga para aplicar actualizaciones del código base.</p>
                 <button class="btn" onclick="window.location.reload(true)" style="width: 100%; justify-content: center;">
@@ -333,9 +333,10 @@
                     Recargar App
                 </button>
                 <details style="margin-top: 12px; font-size: 0.75rem; color: var(--text-muted);">
-                    <summary style="cursor: pointer; font-weight: 500; outline: none;">Novedades de la versión 1.9.9</summary>
+                    <summary style="cursor: pointer; font-weight: 500; outline: none;">Novedades de la versión 1.10.0</summary>
                     <ul style="margin-top: 8px; padding-left: 20px; line-height: 1.5;">
-                        <li><strong>Filtro en Árbol Múltiple (NUEVO):</strong> Ahora el filtro de notas es un desplegable avanzado. Puedes marcar o desmarcar carpetas enteras, subcarpetas o archivos individuales para conseguir la máxima capilaridad a la hora de estudiar tus apuntes.</li>
+                        <li><strong>Interfaz de filtros optimizada:</strong> Selectores paralelos y textos simplificados para ganar espacio y limpieza visual en pantallas de móviles.</li>
+                        <li><strong>Filtro en Árbol Múltiple:</strong> Ahora el filtro de notas es un desplegable avanzado. Puedes marcar o desmarcar carpetas enteras, subcarpetas o archivos individuales para conseguir la máxima capilaridad a la hora de estudiar tus apuntes.</li>
                     </ul>
                 </details>
             </div>
@@ -411,6 +412,7 @@
         let selectedTextTemp = "";
         let jumpToHlId = null; 
         
+        // Objeto global para retener de forma segura el rango nativo antes del click en iOS
         let savedRange = null;
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -645,9 +647,11 @@
                     if(jumpToHlId) {
                         const targetEl = document.getElementById('hl-' + jumpToHlId);
                         if(targetEl) {
+                            const originalBg = targetEl.style.backgroundColor;
+                            targetEl.style.transition = 'background-color 0.5s ease';
+                            targetEl.style.backgroundColor = 'var(--highlight)';
                             targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                            targetEl.classList.add('flash-hl');
-                            setTimeout(() => { targetEl.classList.remove('flash-hl'); }, 1500);
+                            setTimeout(() => { targetEl.style.backgroundColor = originalBg || 'transparent'; }, 1500);
                         }
                         jumpToHlId = null; 
                     } 
@@ -749,7 +753,6 @@
                 bubble.style.display = 'none';
             }
             
-            // Lógica para cerrar el árbol de filtros si se toca fuera
             const treeDropdown = document.getElementById('tree-dropdown');
             const treeBtn = document.getElementById('tree-filter-btn');
             if (treeDropdown && treeDropdown.style.display === 'block') {
@@ -921,7 +924,6 @@
             const hls = JSON.parse(localStorage.getItem('cedos_hls')) || [];
             const paths = [...new Set(hls.map(h => h.path))].filter(Boolean);
             
-            // Construir el objeto anidado del árbol
             let tree = {};
             paths.forEach(p => {
                 let parts = p.split('/');
@@ -939,7 +941,6 @@
                 }
             });
 
-            // Función recursiva para dibujar las casillas HTML
             function renderTreeLevel(obj, prefix) {
                 let html = `<ul class="tree-ul ${prefix==='root'?'root':''}">`;
                 for(let key in obj) {
@@ -986,11 +987,9 @@
             const list = document.getElementById('hl-list');
             let hls = JSON.parse(localStorage.getItem('cedos_hls')) || [];
             
-            // Filtro por tipo (Mantenemos el desplegable clásico porque es corto)
             const fType = document.getElementById('filter-type').value;
             if(fType !== 'all') hls = hls.filter(h => h.type === fType);
 
-            // Filtro por árbol de ubicación
             const leafChks = document.querySelectorAll('.leaf-chk');
             let checkedPaths = [];
             let totalLeaves = 0;
@@ -1002,15 +1001,14 @@
                 hls = hls.filter(h => checkedPaths.includes(h.path));
             }
 
-            // Actualizar texto del botón del árbol
             const btn = document.getElementById('tree-filter-btn');
             if(btn && leafChks.length > 0) {
                 if(checkedPaths.length === totalLeaves) {
-                    btn.innerHTML = "Ubicación: <b>Todos</b> ▼";
+                    btn.innerHTML = "<b>Todos</b> ▼";
                 } else if(checkedPaths.length === 0) {
-                    btn.innerHTML = "Ubicación: <b>Ninguno</b> ▼";
+                    btn.innerHTML = "<b>Ninguno</b> ▼";
                 } else {
-                    btn.innerHTML = `Ubicación: <b>${checkedPaths.length} arch.</b> ▼`;
+                    btn.innerHTML = `<b>${checkedPaths.length} arch.</b> ▼`;
                 }
             }
 
@@ -1059,7 +1057,7 @@
                 let hls = JSON.parse(localStorage.getItem('cedos_hls')) || [];
                 hls = hls.filter(h => h.id !== id);
                 localStorage.setItem('cedos_hls', JSON.stringify(hls));
-                buildLocationTreeAndRender(); // Reconstruye el árbol por si el archivo ya no tiene notas
+                buildLocationTreeAndRender();
             }
         }
 
