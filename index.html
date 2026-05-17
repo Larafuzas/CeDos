@@ -92,12 +92,11 @@
         #reader-content h2 { margin-top: 1.5rem; margin-bottom: 0.5rem; font-size: 1.2rem; line-height: 1.3;}
         #reader-content p, #reader-content ul { margin-bottom: 1rem; }
 
-        /* ESTILOS DE SUBRAYADO Y TACHADO (NUEVO MOTOR) */
-        .mark-hl { background-color: var(--highlight); color: #000; padding: 2px 0; border-radius: 2px; }
-        .mark-strike { text-decoration: line-through; text-decoration-color: var(--danger); text-decoration-thickness: 2px; color: var(--text-muted); background-color: rgba(239, 68, 68, 0.1); padding: 2px 0; border-radius: 2px; }
+        /* ESTILOS DE SUBRAYADO Y TACHADO */
+        .mark-hl { background-color: var(--highlight); color: #000; padding: 2px 0; border-radius: 2px; transition: background 0.3s; }
+        .mark-strike { text-decoration: line-through; text-decoration-color: var(--danger); text-decoration-thickness: 2px; color: var(--text-muted); background-color: rgba(239, 68, 68, 0.1); padding: 2px 0; border-radius: 3px; transition: background 0.3s; }
         .mark-comment { background-color: transparent; }
         
-        /* Efecto destello al "Ir al texto" */
         .flash-hl { animation: flashHighlight 1.5s ease-out; }
         @keyframes flashHighlight {
             0% { background-color: #fca5a5; border-radius: 4px; padding: 2px 4px; color: black; }
@@ -164,15 +163,15 @@
 
     <div id="hl-bubble">
         <div class="hl-toolbar">
-            <button class="hl-action-btn" onclick="saveAnnotation('hl')">
+            <button class="hl-action-btn" onmousedown="event.preventDefault();" ontouchstart="event.preventDefault();" onclick="saveAnnotation('hl')">
                 <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;"><path stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                 Destacar
             </button>
-            <button class="hl-action-btn" onclick="saveAnnotation('comment')">
+            <button class="hl-action-btn" onmousedown="event.preventDefault();" ontouchstart="event.preventDefault();" onclick="saveAnnotation('comment')">
                 <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;"><path stroke-width="2" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z"></path></svg>
                 Comentar
             </button>
-            <button class="hl-action-btn" onclick="saveAnnotation('strike')">
+            <button class="hl-action-btn" onmousedown="event.preventDefault();" ontouchstart="event.preventDefault();" onclick="saveAnnotation('strike')">
                 <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;"><path stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 Corregir
             </button>
@@ -247,7 +246,7 @@
                     <option value="strike">Solo Correcciones</option>
                 </select>
                 <select id="filter-topic" onchange="renderHighlights()">
-                    <option value="all">Toda la estructura</option>
+                    <option value="all">Todas las carpetas</option>
                 </select>
             </div>
 
@@ -308,7 +307,7 @@
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <h3>CeDos - Actualizaciones</h3>
-                    <span style="background: var(--primary-light); color: var(--primary); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">v1.9.7</span>
+                    <span style="background: var(--primary-light); color: var(--primary); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">v1.9.8</span>
                 </div>
                 <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; margin-top: 0.5rem;">Fuerza la recarga para aplicar actualizaciones del código base.</p>
                 <button class="btn" onclick="window.location.reload(true)" style="width: 100%; justify-content: center;">
@@ -316,11 +315,10 @@
                     Recargar App
                 </button>
                 <details style="margin-top: 12px; font-size: 0.75rem; color: var(--text-muted);">
-                    <summary style="cursor: pointer; font-weight: 500; outline: none;">Novedades de la versión 1.9.7</summary>
+                    <summary style="cursor: pointer; font-weight: 500; outline: none;">Novedades de la versión 1.9.8</summary>
                     <ul style="margin-top: 8px; padding-left: 20px; line-height: 1.5;">
-                        <li><strong>Filtro por Carpetas (NUEVO):</strong> Ahora el filtro de notas rastrea y agrupa el contenido usando la ruta exacta de la subcarpeta (ej: <em>General / Constitucion / Tema 1</em>). Se evita así mezclar notas de archivos con el mismo nombre alojados en distintos bloques.</li>
+                        <li><strong>Filtro por Carpetas (NUEVO):</strong> Ahora el filtro de notas rastrea y agrupa el contenido por su carpeta base en lugar de listar individualmente todos los temas, facilitando la lectura por bloques (ej: "Constitucion").</li>
                         <li><strong>FIX Crítico (Botón Volver):</strong> Restaurado el escudo de seguridad en el renderizador de notas para garantizar que un fallo en un subrayado antiguo no impida que la app muestre el marcador de "Volver a posición".</li>
-                        <li><strong>Anotaciones en tiempo real:</strong> Ahora la app pinta el subrayado en la pantalla de inmediato mediante clonación del rango.</li>
                     </ul>
                 </details>
             </div>
@@ -421,9 +419,16 @@
         function getBreadcrumb(path, origin) {
             if (!path) return origin;
             let parts = path.split('/');
-            // Quitar "Temario" para que no sea tan largo
             if (parts[0] === 'Temario') parts.shift();
             return parts.join(' / ').replace('.html', '');
+        }
+
+        function getFolderBreadcrumb(path) {
+            if (!path) return "Sin carpeta";
+            let parts = path.split('/');
+            if (parts[0] === 'Temario') parts.shift();
+            parts.pop(); // Quita el nombre del archivo final
+            return parts.join(' / ');
         }
 
         function initTimeBar() {
@@ -571,7 +576,7 @@
                     });
                     html += `</div></div>`;
                 }
-                return html || '<p style="color:var(--text-muted); font-size:0.9rem;">Sin contenido. Escanea desde Ajustes.</p>';
+                return html || '<p style="color:var(--text-muted); font-size:0.9rem;">Sin contenido.</p>';
             };
 
             document.getElementById('tree-general').innerHTML = buildHtml(dbTree.General);
@@ -624,18 +629,19 @@
                     img.style.cursor = 'zoom-in';
                 });
 
-                // Blindamos la función para que no rompa la ejecución general
                 try {
                     restoreVisualHighlights();
-                } catch(e) { console.error("Error al restaurar anotaciones:", e); }
+                } catch(e) { console.error(e); }
                 
                 setTimeout(() => {
                     if(jumpToHlId) {
                         const targetEl = document.getElementById('hl-' + jumpToHlId);
                         if(targetEl) {
+                            const originalBg = targetEl.style.backgroundColor;
+                            targetEl.style.transition = 'background-color 0.5s ease';
+                            targetEl.style.backgroundColor = 'var(--highlight)';
                             targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                            targetEl.classList.add('flash-hl');
-                            setTimeout(() => { targetEl.classList.remove('flash-hl'); }, 1500);
+                            setTimeout(() => { targetEl.style.backgroundColor = originalBg || 'transparent'; }, 1500);
                         }
                         jumpToHlId = null; 
                     } 
@@ -702,7 +708,7 @@
             }
         });
 
-        // --- SISTEMA DE ANOTACIONES (SOLUCIÓN DEFINITIVA PARA iOS) ---
+        // --- SISTEMA DE ANOTACIONES ---
         function handleSelection(e) {
             if(!document.getElementById('reader').classList.contains('active')) return;
             
@@ -800,7 +806,9 @@
                     comment = prompt("Añadir nota adicional (opcional):");
                 }
 
-                if ((type === 'comment' || type === 'strike') && comment === null) return;
+                if ((type === 'comment' || type === 'strike') && comment === null) {
+                    return; 
+                }
 
                 let hls = JSON.parse(localStorage.getItem('cedos_hls')) || [];
                 hls.push({
@@ -895,17 +903,19 @@
             const topicSelect = document.getElementById('filter-topic');
             const currentSelection = topicSelect.value;
             
-            // Usamos la nueva función getBreadcrumb para rellenar las opciones
-            const uniqueTopics = [...new Set(hls.map(h => getBreadcrumb(h.path, h.origin)))].sort();
+            // Usamos la nueva función para extraer solo las carpetas
+            const uniqueFolders = [...new Set(hls.map(h => getFolderBreadcrumb(h.path)))].sort();
             
-            let optionsHtml = '<option value="all">Toda la estructura</option>';
-            uniqueTopics.forEach(t => {
-                optionsHtml += `<option value="${t}">${t}</option>`;
+            let optionsHtml = '<option value="all">Todas las carpetas</option>';
+            uniqueFolders.forEach(f => {
+                optionsHtml += `<option value="${f}">${f}</option>`;
             });
             topicSelect.innerHTML = optionsHtml;
             
-            if(uniqueTopics.includes(currentSelection)) {
+            if(uniqueFolders.includes(currentSelection)) {
                 topicSelect.value = currentSelection;
+            } else {
+                topicSelect.value = 'all'; // Resetea si la carpeta ya no existe
             }
             
             renderHighlights();
@@ -919,7 +929,8 @@
             const fTopic = document.getElementById('filter-topic').value;
             
             if(fType !== 'all') hls = hls.filter(h => h.type === fType);
-            if(fTopic !== 'all') hls = hls.filter(h => getBreadcrumb(h.path, h.origin) === fTopic);
+            // Filtro por carpeta base (Ej: coincidencia exacta con 'General / Constitucion')
+            if(fTopic !== 'all') hls = hls.filter(h => getFolderBreadcrumb(h.path) === fTopic);
 
             if(!hls.length) { list.innerHTML = '<p class="text-muted">No hay anotaciones con estos filtros.</p>'; return; }
             
