@@ -110,8 +110,8 @@
         .hl-action-btn:hover { background: #334155; }
 
         /* SECCIÓN DESTACADOS E INTERFAZ DE ÁRBOL DE FILTROS */
-        .hl-filters { display: flex; gap: 10px; flex-wrap: nowrap; margin-bottom: 1.5rem; background: var(--bg-surface); padding: 1rem; border-radius: 8px; border: 1px solid var(--border); align-items: center; }
-        .hl-filters select { flex: 1; min-width: 0; padding: 0.5rem; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-base); color: var(--text-main); height: 42px; font-size: 0.85rem; }
+        .hl-filters { display: flex; gap: 10px; flex-wrap: nowrap; margin-bottom: 1.5rem; background: var(--bg-surface); padding: 1rem; border-radius: 8px; border: 1px solid var(--border); align-items: flex-end; }
+        .hl-filters select { width: 100%; padding: 0.5rem; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-base); color: var(--text-main); height: 42px; font-size: 0.85rem; }
         
         .tree-filter-container { position: relative; flex: 1; min-width: 0; }
 
@@ -276,19 +276,25 @@
                 </div>
             </div>
 
-            <div class="hl-filters" style="display: flex; gap: 10px; flex-wrap: nowrap;">
-                <select id="filter-type" onchange="renderHighlights()">
-                    <option value="all">Todos</option>
-                    <option value="hl">Destacados</option>
-                    <option value="comment">Comentarios</option>
-                    <option value="strike">Correcciones</option>
-                </select>
+            <div class="hl-filters" style="display: flex; gap: 10px; flex-wrap: nowrap; border: none; padding: 0; background: transparent; margin-bottom: 1.5rem;">
                 
-                <div class="tree-filter-container">
+                <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px;">
+                    <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; padding-left: 2px;">Tipo</label>
+                    <select id="filter-type" onchange="renderHighlights()" style="width: 100%;">
+                        <option value="all">Todos</option>
+                        <option value="hl">Destacados</option>
+                        <option value="comment">Comentarios</option>
+                        <option value="strike">Correcciones</option>
+                    </select>
+                </div>
+                
+                <div class="tree-filter-container" style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px;">
+                    <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; padding-left: 2px;">Tema</label>
                     <button id="tree-filter-btn" class="btn" style="width:100%; justify-content:space-between; height: 42px; font-size: 0.85rem; padding: 0.6rem;" onclick="toggleTreeModal()">
                         <b>Todos</b> ▼
                     </button>
                 </div>
+
             </div>
 
             <div id="hl-list"></div>
@@ -348,7 +354,7 @@
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <h3>CeDos - Actualizaciones</h3>
-                    <span style="background: var(--primary-light); color: var(--primary); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">v1.2</span>
+                    <span style="background: var(--primary-light); color: var(--primary); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">v1.2.1</span>
                 </div>
                 <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; margin-top: 0.5rem;">Fuerza la recarga para aplicar actualizaciones del código base.</p>
                 <button class="btn" onclick="window.location.reload(true)" style="width: 100%; justify-content: center;">
@@ -356,10 +362,10 @@
                     Recargar App
                 </button>
                 <details style="margin-top: 12px; font-size: 0.75rem; color: var(--text-muted);">
-                    <summary style="cursor: pointer; font-weight: 500; outline: none;">Novedades de la versión 1.2</summary>
+                    <summary style="cursor: pointer; font-weight: 500; outline: none;">Novedades de la versión 1.2.1</summary>
                     <ul style="margin-top: 8px; padding-left: 20px; line-height: 1.5;">
+                        <li><strong>Claridad en los filtros:</strong> Se han añadido etiquetas ("TIPO" y "TEMA") encima de los menús de la pestaña Destacados para facilitar la navegación a simple vista, manteniendo un diseño compacto.</li>
                         <li><strong>Modal de Filtro (NUEVO):</strong> El selector de carpetas para las notas ya no es un pequeño menú desbordado, sino una ventana modal centrada que aprovecha toda la pantalla de tu dispositivo móvil.</li>
-                        <li><strong>Interfaz de filtros optimizada:</strong> Selectores paralelos y textos simplificados ("Todos", "Destacados"...) para ganar limpieza visual.</li>
                         <li><strong>Filtro en Árbol Múltiple:</strong> Puedes marcar o desmarcar carpetas enteras, subcarpetas o archivos individuales para conseguir la máxima capilaridad a la hora de estudiar tus apuntes.</li>
                     </ul>
                 </details>
@@ -671,9 +677,11 @@
                     if(jumpToHlId) {
                         const targetEl = document.getElementById('hl-' + jumpToHlId);
                         if(targetEl) {
+                            const originalBg = targetEl.style.backgroundColor;
+                            targetEl.style.transition = 'background-color 0.5s ease';
+                            targetEl.style.backgroundColor = 'var(--highlight)';
                             targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                            targetEl.classList.add('flash-hl');
-                            setTimeout(() => { targetEl.classList.remove('flash-hl'); }, 1500);
+                            setTimeout(() => { targetEl.style.backgroundColor = originalBg || 'transparent'; }, 1500);
                         }
                         jumpToHlId = null; 
                     } 
