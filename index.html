@@ -93,9 +93,8 @@
         #reader-content p, #reader-content ul { margin-bottom: 1rem; }
 
         /* ESTILOS DE SUBRAYADO Y TACHADO DENTRO DEL TEXTO */
-        .mark-hl { background-color: var(--highlight); color: #000; border-radius: 3px; padding: 0 2px; transition: background-color 0.4s ease; }
-        .mark-strike { text-decoration: line-through; text-decoration-color: var(--danger); text-decoration-thickness: 2px; color: var(--text-muted); background-color: rgba(239, 68, 68, 0.1); padding: 0 2px; border-radius: 3px; transition: background-color 0.4s ease; }
-        .mark-comment { background-color: transparent; transition: background-color 0.4s ease; } /* Ancla invisible */
+        .mark-hl { background-color: var(--highlight); color: #000; border-radius: 3px; padding: 0 2px; transition: background 0.3s; }
+        .mark-strike { text-decoration: line-through; text-decoration-color: var(--danger); text-decoration-thickness: 2px; color: var(--text-muted); background-color: rgba(239, 68, 68, 0.1); padding: 0 2px; border-radius: 3px; }
         
         /* BURBUJA DE ACCIONES */
         #hl-bubble { position: absolute; display: none; background: #1e293b; padding: 6px; border-radius: 8px; z-index: 9999; box-shadow: 0 4px 12px rgba(0,0,0,0.3); transition: opacity 0.2s; white-space: nowrap; }
@@ -280,7 +279,7 @@
 
             <div class="card">
                 <h3>Estructura del Temario</h3>
-                <img src="temario.png" alt="Mapa del Temario" style="margin-top: 0.5rem; border: 1px solid var(--border);" onclick="openImageModal(this.src)">
+                <img src="temario.png" alt="Mapa del Temario" style="margin-top: 0.5rem; border: 1px solid var(--border); cursor: zoom-in;" onclick="openImageModal(this.src)">
             </div>
 
             <div class="card">
@@ -300,13 +299,24 @@
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <h3>CeDos - Actualizaciones</h3>
-                    <span style="background: var(--primary-light); color: var(--primary); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">v1.9.1</span>
+                    <span style="background: var(--primary-light); color: var(--primary); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">v1.9.2</span>
                 </div>
                 <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; margin-top: 0.5rem;">Fuerza la recarga para aplicar actualizaciones del código base.</p>
                 <button class="btn" onclick="window.location.reload(true)" style="width: 100%; justify-content: center;">
                     <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;"><path stroke-width="1.5" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"></path></svg>
                     Recargar App
                 </button>
+                <details style="margin-top: 12px; font-size: 0.75rem; color: var(--text-muted);">
+                    <summary style="cursor: pointer; font-weight: 500; outline: none;">Novedades de la versión 1.9.2</summary>
+                    <ul style="margin-top: 8px; padding-left: 20px; line-height: 1.5;">
+                        <li><strong>Registro de cambios:</strong> Nuevo desplegable en Ajustes.</li>
+                        <li><strong>Anotaciones en vivo:</strong> Subrayado y tachado instantáneo sin recargar la página.</li>
+                        <li><strong>Marcadores inteligentes:</strong> Anclas invisibles que te llevan al punto exacto de la anotación desde la pestaña Destacados.</li>
+                        <li><strong>Zoom en imágenes:</strong> Ampliación táctil real (Pinch-to-zoom) desbloqueada al abrir imágenes.</li>
+                        <li><strong>Nuevas carpetas:</strong> Soporte automático para la carpeta 'Sesiones' e integración de 'Temario/Especial'.</li>
+                        <li><strong>PWA Nativa:</strong> Icono y colores de estado adaptados para iOS y Android.</li>
+                    </ul>
+                </details>
             </div>
             
             <div class="card">
@@ -346,6 +356,11 @@
                 <button class="btn" onclick="navTo(lastTab)">
                     <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;"><path stroke-width="1.5" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"></path></svg>
                     Volver
+                </button>
+                
+                <button id="bookmark-btn" class="btn" onclick="jumpToBookmark()" style="display:none; padding: 0.5rem 0.75rem; font-size: 0.8rem; background: var(--primary-light); color: var(--primary); border: 1px solid var(--primary);">
+                    <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;"><path stroke-width="1.5" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-width="1.5" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"></path></svg>
+                    Volver a posición
                 </button>
             </div>
             
@@ -562,12 +577,12 @@
             renderTrees(); updateStats();
         }
 
-        // --- SISTEMA DE LECTURA E INYECCIÓN DE HIGHLIGHTS ---
         async function loadTopic(path, name) {
             navTo('reader');
             currentTopic = { path, name: name.replace('.html', '') };
             document.getElementById('reader-title').innerText = currentTopic.name;
             document.getElementById('reader-scroll-bar').style.width = (localStorage.getItem(`p_${path}`) || 0) + '%';
+            document.getElementById('bookmark-btn').style.display = 'none';
             
             const cont = document.getElementById('reader-content');
             cont.innerHTML = '<p>Cargando archivo...</p>';
@@ -591,10 +606,8 @@
                     img.style.cursor = 'zoom-in';
                 });
 
-                // Restaurar las anotaciones en el texto nada más cargar
                 restoreVisualHighlights();
                 
-                // Procesar salto automático o marcador de última lectura
                 setTimeout(() => {
                     if(jumpToHlId) {
                         const targetEl = document.getElementById('hl-' + jumpToHlId);
@@ -607,6 +620,34 @@
                         }
                         jumpToHlId = null; 
                     } 
+                    else {
+                        const pct = parseInt(localStorage.getItem(`p_${path}`) || 0);
+                        const isDone = localStorage.getItem(`c_${path}`) === 'true';
+                        
+                        if(pct > 0 && pct < 100 && !isDone) {
+                            cont.style.position = 'relative';
+                            const contentHeight = cont.scrollHeight;
+                            const topPos = (pct / 100) * contentHeight;
+                            
+                            const marker = document.createElement('div');
+                            marker.id = 'bookmark-marker';
+                            marker.innerHTML = `
+                                <div style="display:inline-flex; align-items:center; gap:4px; background:var(--primary); color:white; padding:2px 8px; border-radius:12px; font-size:0.75rem; box-shadow:0 2px 4px rgba(0,0,0,0.1); transform: translateY(-100%); margin-top: -2px;">
+                                    <svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;"><path stroke-width="2" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-width="2" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"></path></svg>
+                                    Última lectura
+                                </div>
+                            `;
+                            marker.style.position = 'absolute';
+                            marker.style.top = topPos + 'px';
+                            marker.style.left = '0';
+                            marker.style.width = '100%';
+                            marker.style.borderTop = '2px dashed var(--primary)';
+                            marker.style.zIndex = '10';
+                            
+                            cont.appendChild(marker);
+                            document.getElementById('bookmark-btn').style.display = 'inline-flex';
+                        }
+                    }
                 }, 400); 
                 
             } catch {
@@ -616,6 +657,11 @@
                         <p>No se pudo cargar el archivo: <b>${path}</b></p>
                     </div>`;
             }
+        }
+
+        function jumpToBookmark() {
+            const marker = document.getElementById('bookmark-marker');
+            if (marker) marker.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
 
         window.addEventListener('scroll', () => {
@@ -637,7 +683,7 @@
             }
         });
 
-        // --- SISTEMA DE ANOTACIONES, DESTACADOS Y CORRECCIONES EN VIVO ---
+        // --- SISTEMA DE ANOTACIONES ---
         function handleSelection(e) {
             if(!document.getElementById('reader').classList.contains('active')) return;
             
@@ -689,7 +735,6 @@
 
             const newId = Date.now().toString();
 
-            // APLICAR CAMBIO VISUAL AL INSTANTE SIN RECARGAR
             const selection = window.getSelection();
             if (selection.rangeCount > 0) {
                 const range = selection.getRangeAt(0);
@@ -699,7 +744,6 @@
                 try {
                     range.surroundContents(span);
                 } catch(e) {
-                    // Fallback si la selección cruza etiquetas HTML (por ejemplo coge un <b> a medias)
                     span.appendChild(range.extractContents());
                     range.insertNode(span);
                 }
@@ -721,7 +765,6 @@
             alert("Anotación guardada.");
         }
 
-        // Esta función restaura las marcas cuando abres un tema previamente guardado
         function restoreVisualHighlights() {
             if (!currentTopic) return;
             const hls = JSON.parse(localStorage.getItem('cedos_hls')) || [];
@@ -737,7 +780,6 @@
                 if (hl.type === 'hl') spanClass = 'mark-hl';
                 if (hl.type === 'strike') spanClass = 'mark-strike';
                 
-                // Refrescar el árbol de nodos de texto en cada iteración para que no se rompan las referencias
                 const walker = document.createTreeWalker(cont, NodeFilter.SHOW_TEXT, null, false);
                 const nodesToProcess = [];
                 let node;
@@ -746,7 +788,6 @@
                 for (let i = 0; i < nodesToProcess.length; i++) {
                     const n = nodesToProcess[i];
                     if (n.nodeValue && n.nodeValue.includes(searchStr)) {
-                        // Evitar hacer dobles spans si ya está marcado
                         if (n.parentElement && n.parentElement.id === `hl-${hl.id}`) continue;
                         
                         const escapedStr = searchStr.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
