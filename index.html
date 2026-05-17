@@ -119,7 +119,8 @@
         .hl-card.type-comment { border-left-color: var(--primary); }
         .hl-card.type-strike { border-left-color: var(--danger); }
         .hl-comment { background: var(--bg-base); padding: 0.75rem; border-radius: 6px; margin-top: 0.75rem; font-size: 0.9rem; color: var(--text-main); border: 1px solid var(--border); }
-        .hl-meta { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.75rem; display: flex; justify-content: space-between; align-items: center; }
+        .hl-meta { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.75rem; display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+        .hl-meta-path { flex: 1; word-break: break-word; }
         .hl-badge { padding: 2px 6px; border-radius: 4px; font-weight: 600; font-size: 0.65rem; text-transform: uppercase; }
         
         .hl-actions { display: flex; gap: 8px; margin-top: 10px; border-top: 1px dashed var(--border); padding-top: 10px; }
@@ -246,7 +247,7 @@
                     <option value="strike">Solo Correcciones</option>
                 </select>
                 <select id="filter-topic" onchange="renderHighlights()">
-                    <option value="all">Todos los temas</option>
+                    <option value="all">Toda la estructura</option>
                 </select>
             </div>
 
@@ -307,7 +308,7 @@
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <h3>CeDos - Actualizaciones</h3>
-                    <span style="background: var(--primary-light); color: var(--primary); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">v1.9.6</span>
+                    <span style="background: var(--primary-light); color: var(--primary); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">v1.9.7</span>
                 </div>
                 <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; margin-top: 0.5rem;">Fuerza la recarga para aplicar actualizaciones del código base.</p>
                 <button class="btn" onclick="window.location.reload(true)" style="width: 100%; justify-content: center;">
@@ -315,9 +316,10 @@
                     Recargar App
                 </button>
                 <details style="margin-top: 12px; font-size: 0.75rem; color: var(--text-muted);">
-                    <summary style="cursor: pointer; font-weight: 500; outline: none;">Novedades de la versión 1.9.6</summary>
+                    <summary style="cursor: pointer; font-weight: 500; outline: none;">Novedades de la versión 1.9.7</summary>
                     <ul style="margin-top: 8px; padding-left: 20px; line-height: 1.5;">
-                        <li><strong>FIX Crítico (Botón Volver):</strong> Se ha restaurado el escudo de seguridad en el renderizador de notas para garantizar que un fallo en un subrayado antiguo no impida que la app muestre el marcador de "Volver a posición".</li>
+                        <li><strong>Filtro por Carpetas (NUEVO):</strong> Ahora el filtro de notas rastrea y agrupa el contenido usando la ruta exacta de la subcarpeta (ej: <em>General / Constitucion / Tema 1</em>). Se evita así mezclar notas de archivos con el mismo nombre alojados en distintos bloques.</li>
+                        <li><strong>FIX Crítico (Botón Volver):</strong> Restaurado el escudo de seguridad en el renderizador de notas para garantizar que un fallo en un subrayado antiguo no impida que la app muestre el marcador de "Volver a posición".</li>
                         <li><strong>Anotaciones en tiempo real:</strong> Ahora la app pinta el subrayado en la pantalla de inmediato mediante clonación del rango.</li>
                     </ul>
                 </details>
@@ -413,6 +415,15 @@
         function closeImageModal() {
             document.getElementById('img-modal').classList.remove('active');
             document.getElementById('viewport-meta').setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+        }
+
+        // Helpers de Rutas / Estructuras de carpetas
+        function getBreadcrumb(path, origin) {
+            if (!path) return origin;
+            let parts = path.split('/');
+            // Quitar "Temario" para que no sea tan largo
+            if (parts[0] === 'Temario') parts.shift();
+            return parts.join(' / ').replace('.html', '');
         }
 
         function initTimeBar() {
@@ -560,7 +571,7 @@
                     });
                     html += `</div></div>`;
                 }
-                return html || '<p style="color:var(--text-muted); font-size:0.9rem;">Sin contenido.</p>';
+                return html || '<p style="color:var(--text-muted); font-size:0.9rem;">Sin contenido. Escanea desde Ajustes.</p>';
             };
 
             document.getElementById('tree-general').innerHTML = buildHtml(dbTree.General);
@@ -613,19 +624,18 @@
                     img.style.cursor = 'zoom-in';
                 });
 
+                // Blindamos la función para que no rompa la ejecución general
                 try {
                     restoreVisualHighlights();
-                } catch(e) { console.error(e); }
+                } catch(e) { console.error("Error al restaurar anotaciones:", e); }
                 
                 setTimeout(() => {
                     if(jumpToHlId) {
                         const targetEl = document.getElementById('hl-' + jumpToHlId);
                         if(targetEl) {
-                            const originalBg = targetEl.style.backgroundColor;
-                            targetEl.style.transition = 'background-color 0.5s ease';
-                            targetEl.style.backgroundColor = 'var(--highlight)';
                             targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                            setTimeout(() => { targetEl.style.backgroundColor = originalBg || 'transparent'; }, 1500);
+                            targetEl.classList.add('flash-hl');
+                            setTimeout(() => { targetEl.classList.remove('flash-hl'); }, 1500);
                         }
                         jumpToHlId = null; 
                     } 
@@ -633,7 +643,6 @@
                         const pct = parseInt(localStorage.getItem(`p_${path}`) || 0);
                         const isDone = localStorage.getItem(`c_${path}`) === 'true';
                         
-                        // Añadido en 1.9.6: Quitamos la restricción de <100 para que se muestre siempre si hay avance
                         if(pct > 0 && !isDone) {
                             cont.style.position = 'relative';
                             const contentHeight = cont.scrollHeight;
@@ -693,7 +702,7 @@
             }
         });
 
-        // --- SISTEMA DE ANOTACIONES ---
+        // --- SISTEMA DE ANOTACIONES (SOLUCIÓN DEFINITIVA PARA iOS) ---
         function handleSelection(e) {
             if(!document.getElementById('reader').classList.contains('active')) return;
             
@@ -768,10 +777,14 @@
             if (type === 'hl') spanClass = 'mark-hl';
             if (type === 'strike') spanClass = 'mark-strike';
 
-            if (savedRange) {
+            if (savedRange && type !== 'comment') {
                 try {
                     safeHighlightRange(savedRange, spanClass, `hl-${newId}`);
                 } catch(e) { console.error("Error aplicando el estilo en vivo:", e); }
+            } else if (savedRange && type === 'comment') {
+                try {
+                    safeHighlightRange(savedRange, spanClass, `hl-${newId}`);
+                } catch(e) {}
             }
             
             window.getSelection().removeAllRanges();
@@ -787,10 +800,7 @@
                     comment = prompt("Añadir nota adicional (opcional):");
                 }
 
-                if ((type === 'comment' || type === 'strike') && comment === null) {
-                    // Remover estilos si se canceló la creación (reversión simple recargando el texto limpio en un futuro)
-                    return; 
-                }
+                if ((type === 'comment' || type === 'strike') && comment === null) return;
 
                 let hls = JSON.parse(localStorage.getItem('cedos_hls')) || [];
                 hls.push({
@@ -885,9 +895,10 @@
             const topicSelect = document.getElementById('filter-topic');
             const currentSelection = topicSelect.value;
             
-            const uniqueTopics = [...new Set(hls.map(h => h.origin))].sort();
+            // Usamos la nueva función getBreadcrumb para rellenar las opciones
+            const uniqueTopics = [...new Set(hls.map(h => getBreadcrumb(h.path, h.origin)))].sort();
             
-            let optionsHtml = '<option value="all">Todos los temas</option>';
+            let optionsHtml = '<option value="all">Toda la estructura</option>';
             uniqueTopics.forEach(t => {
                 optionsHtml += `<option value="${t}">${t}</option>`;
             });
@@ -908,7 +919,7 @@
             const fTopic = document.getElementById('filter-topic').value;
             
             if(fType !== 'all') hls = hls.filter(h => h.type === fType);
-            if(fTopic !== 'all') hls = hls.filter(h => h.origin === fTopic);
+            if(fTopic !== 'all') hls = hls.filter(h => getBreadcrumb(h.path, h.origin) === fTopic);
 
             if(!hls.length) { list.innerHTML = '<p class="text-muted">No hay anotaciones con estos filtros.</p>'; return; }
             
@@ -927,7 +938,10 @@
                         </p>
                         ${h.comment ? `<div class="hl-comment"><b>Nota:</b> <span id="txt-comment-${h.id}">${h.comment}</span></div>` : ''}
                         
-                        <div class="hl-meta"><span>Tema: ${h.origin}</span> <span>${h.date}</span></div>
+                        <div class="hl-meta">
+                            <span class="hl-meta-path">Ubicación: <b>${getBreadcrumb(h.path, h.origin)}</b></span> 
+                            <span style="white-space: nowrap;">${h.date}</span>
+                        </div>
                         
                         <div class="hl-actions">
                             ${h.path ? `<button class="hl-icon-btn goto" onclick="goToHighlight('${h.path}', '${h.origin}', '${h.id}')" title="Ir al texto">
