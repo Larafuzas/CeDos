@@ -333,8 +333,16 @@
             </div>
 
             <div class="card">
-                <h3>Estructura del Temario</h3>
-                <img src="temario.png" alt="Mapa del Temario" style="margin-top: 0.5rem; border: 1px solid var(--border); cursor: zoom-in;" onclick="openImageModal(this.src)">
+                <details style="color: var(--text-main);">
+                    <summary style="cursor: pointer; font-weight: 600; font-size: 1.1rem; outline: none;">Esquemas visuales</summary>
+                    <div style="margin-top: 1rem;">
+                        <h4 style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 4px;">Estructura del Temario</h4>
+                        <img src="temario.png" alt="Mapa del Temario" style="margin-bottom: 1rem; border: 1px solid var(--border);" onclick="openImageModal(this.src)">
+                        
+                        <h4 style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 4px;">Plazos de Procedimiento Administrativo</h4>
+                        <img src="plazos.png" alt="Esquema de Plazos" style="border: 1px solid var(--border);" onclick="openImageModal(this.src)">
+                    </div>
+                </details>
             </div>
 
             <div class="card">
@@ -354,7 +362,7 @@
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <h3>CeDos - Actualizaciones</h3>
-                    <span style="background: var(--primary-light); color: var(--primary); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">v1.2.3</span>
+                    <span style="background: var(--primary-light); color: var(--primary); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">v1.2.4</span>
                 </div>
                 <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; margin-top: 0.5rem;">Fuerza la recarga para aplicar actualizaciones del código base.</p>
                 <button class="btn" onclick="window.location.reload(true)" style="width: 100%; justify-content: center;">
@@ -362,10 +370,10 @@
                     Recargar App
                 </button>
                 <details style="margin-top: 12px; font-size: 0.75rem; color: var(--text-muted);">
-                    <summary style="cursor: pointer; font-weight: 500; outline: none;">Novedades de la versión 1.2.3</summary>
+                    <summary style="cursor: pointer; font-weight: 500; outline: none;">Novedades de la versión 1.2.4</summary>
                     <ul style="margin-top: 8px; padding-left: 20px; line-height: 1.5;">
-                        <li><strong>FIX Definitivo iOS:</strong> Resuelto el problema que impedía registrar las pulsaciones en los botones de destacar en iPhone. Se ha implementado un nuevo motor de captura instantánea de texto compatible con los bloqueos de Safari.</li>
-                        <li><strong>Botón Posición:</strong> Se ha forzado la aparición del botón flotante "Volver a posición" siempre que exista progreso en el tema, asegurando su visualización independientemente de si el tema estaba marcado como completado o no.</li>
+                        <li><strong>Esquemas visuales organizados:</strong> Nueva sección colapsable en la pestaña "Varios" que agrupa tanto el mapa del temario original como el nuevo esquema de plazos de procedimiento administrativo (`plazos.png`). Ambos comparten la misma funcionalidad táctil de ampliación por pellizco.</li>
+                        <li><strong>FIX Definitivo iOS:</strong> Resuelto el problema que impedía registrar las pulsaciones en los botones de destacar en iPhone.</li>
                     </ul>
                 </details>
             </div>
@@ -441,6 +449,7 @@
         let selectedTextTemp = "";
         let jumpToHlId = null; 
         
+        // Objeto global para retener de forma segura el rango nativo antes del click en iOS
         let savedRange = null;
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -450,6 +459,7 @@
             updateStats();
         });
 
+        // Visor de Imágenes
         function openImageModal(src) {
             document.getElementById('img-modal-src').src = src;
             document.getElementById('img-modal').classList.add('active');
@@ -460,6 +470,7 @@
             document.getElementById('viewport-meta').setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
         }
 
+        // Helpers de Rutas / Estructuras de carpetas
         function getBreadcrumb(path, origin) {
             if (!path) return origin;
             let parts = path.split('/');
@@ -673,16 +684,18 @@
                     if(jumpToHlId) {
                         const targetEl = document.getElementById('hl-' + jumpToHlId);
                         if(targetEl) {
+                            const originalBg = targetEl.style.backgroundColor;
+                            targetEl.style.transition = 'background-color 0.5s ease';
+                            targetEl.style.backgroundColor = 'var(--highlight)';
                             targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                            targetEl.classList.add('flash-hl');
-                            setTimeout(() => { targetEl.classList.remove('flash-hl'); }, 1500);
+                            setTimeout(() => { targetEl.style.backgroundColor = originalBg || 'transparent'; }, 1500);
                         }
                         jumpToHlId = null; 
                     } 
                     else {
                         const pct = parseInt(localStorage.getItem(`p_${path}`) || 0);
+                        const isDone = localStorage.getItem(`c_${path}`) === 'true';
                         
-                        // Botón de Volver a posición: Se muestra SIEMPRE que haya algo de progreso (incluso al 100% o completado)
                         if(pct > 0) {
                             cont.style.position = 'relative';
                             const contentHeight = cont.scrollHeight;
@@ -742,7 +755,7 @@
             }
         });
 
-        // --- SISTEMA DE ANOTACIONES (RECONSTRUIDO PARA IOS) ---
+        // --- SISTEMA DE ANOTACIONES ---
         document.addEventListener('selectionchange', () => {
             if(!document.getElementById('reader').classList.contains('active')) return;
             
@@ -754,13 +767,11 @@
             if(selText.length > 5) {
                 selectedTextTemp = selText;
                 
-                // Salvamos el rango en tiempo real para usarlo cuando iOS limpie la selección al tocar el botón
                 savedRange = selection.getRangeAt(0).cloneRange();
                 
                 const rect = savedRange.getBoundingClientRect();
                 const bubble = document.getElementById('hl-bubble');
                 
-                // Evitar bugs de dimensiones 0 en iOS
                 if(rect.width > 0 && rect.height > 0) {
                     bubble.style.display = 'block';
                     const bubbleWidth = bubble.offsetWidth || 280;
@@ -776,7 +787,6 @@
         function hideBubbleOnOutsideClick(e) {
             const bubble = document.getElementById('hl-bubble');
             if (bubble.style.display === 'block' && !bubble.contains(e.target)) {
-                // Retraso para asegurar que el onclick del botón se ejecuta antes de ocultar
                 setTimeout(() => { bubble.style.display = 'none'; }, 200);
             }
             
@@ -824,7 +834,6 @@
         function saveAnnotation(type) {
             document.getElementById('hl-bubble').style.display = 'none';
             
-            // Pide el texto ANTES para evitar que el Prompt de iOS desincronice el DOM
             let comment = null;
             if (type === 'comment') {
                 comment = prompt("Escribe tu comentario sobre este fragmento:");
@@ -834,7 +843,6 @@
                 comment = prompt("Añadir nota adicional (opcional):");
             }
 
-            // Si cancela, no hacemos nada más
             if ((type === 'comment' || type === 'strike') && comment === null) {
                 savedRange = null;
                 return; 
@@ -845,7 +853,6 @@
             if (type === 'hl') spanClass = 'mark-hl';
             if (type === 'strike') spanClass = 'mark-strike';
 
-            // Ahora sí, pintamos usando el rango que teníamos guardado
             if (savedRange) {
                 try {
                     safeHighlightRange(savedRange, spanClass, `hl-${newId}`);
@@ -943,7 +950,6 @@
             });
         }
 
-        // --- NUEVO SISTEMA DE FILTRADO EN MODAL ---
         function toggleTreeModal() {
             const modal = document.getElementById('tree-modal');
             modal.classList.toggle('active');
